@@ -1,206 +1,222 @@
-> **Fork notice:** This is a maintained fork of [dubocr/homebridge-tahoma](https://github.com/dubocr/homebridge-tahoma), published as `@tplnet/homebridge-tahoma`.
-> It uses the forked API client [`@tplnet/overkiz-client`](https://github.com/tplnet/overkiz-client).
-> The platform name stays `Tahoma`, so existing `config.json` entries and cached accessories keep working.
+# Homebridge TaHoma (@tplnet/homebridge-tahoma)
 
-# Overkiz (Somfy) - Homebridge-TaHoma
+[![npm](https://img.shields.io/npm/v/@tplnet/homebridge-tahoma)](https://www.npmjs.com/package/@tplnet/homebridge-tahoma)
+[![CI](https://github.com/tplnet/homebridge-tahoma/actions/workflows/ci.yml/badge.svg)](https://github.com/tplnet/homebridge-tahoma/actions/workflows/ci.yml)
+[![License](https://img.shields.io/npm/l/@tplnet/homebridge-tahoma)](LICENSE)
 
-Homebridge plugin supporting Overkiz based platforms :
+Control your **Somfy TaHoma** devices – roller shutters, blinds, awnings, gates, garage doors, lights, heating, alarms, sensors – with **Apple Home** and Siri, through [Homebridge](https://homebridge.io).
 
-| Service code				| Vendor					| Product compatibility												|
-|---------------------------|---------------------------|-------------------------------------------------------------------|
-| `local`					| Somfy local API			| TaHoma, TaHoma Switch ([configure local API](#configure-local-api))												|
-| `somfy_europe`			| Somfy Europe			 	| TaHoma, TaHoma Switch, Connexoon IO, Kit de connectivité Orange	|
-| `somfy_australia`			| Somfy Australia	 		| Connexoon RTS and other products in Australia						|
-| `somfy_north_america`		| Somfy North America 		| TaHoma and other product in North America							|
-| `cozytouch`				| Atlantic, Thermor, Sauter | Cozytouch															|
-| `flexom`					| Bouygues 					| Flexom															|
-| `hi_kumo`					| Hitachi 					| Hi hi_kumo														|
-| `rexel`					| Rexel					 	| Energeasy connectivité											|
+Works with all **Overkiz** based platforms: Somfy TaHoma / TaHoma Switch / Connexoon, Atlantic / Thermor / Sauter **Cozytouch**, Hitachi Hi Kumo, Flexom and Rexel Energeasy – via the **local API** of your TaHoma gateway or via the manufacturer's cloud.
 
+> This is a maintained fork of [dubocr/homebridge-tahoma](https://github.com/dubocr/homebridge-tahoma) by Romain Duboc, using the forked API client [`@tplnet/overkiz-client`](https://github.com/tplnet/overkiz-client).
+> It is a **drop-in replacement**: the platform name stays `Tahoma`, so your configuration and HomeKit accessories are kept – see [Migrating](#migrating-from-homebridge-tahoma).
+> Changes compared to the original: [CHANGELOG.md](CHANGELOG.md).
 
-# Installation
+## Contents
 
-1. Install homebridge using: `npm install -g homebridge`
-2. Install this plugin using: `npm install -g @tplnet/homebridge-tahoma` (or search for `@tplnet/homebridge-tahoma` in the Homebridge UI)
-3. Update your configuration file. See bellow for a sample.
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Migrating from homebridge-tahoma](#migrating-from-homebridge-tahoma)
+- [Configuration](#configuration)
+- [Local API (recommended)](#local-api-recommended)
+- [Device specific configuration](#device-specific-configuration)
+- [Supported devices](#supported-devices)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [Releasing (maintainers)](#releasing-maintainers)
+- [License and credits](#license-and-credits)
 
-# Configuration
+## Requirements
 
-Minimal configuration sample:
+- Homebridge 1.8 or 2.x (tested with Homebridge 2.5)
+- Node.js 22, 24 or 26
+- One of the supported services:
+
+| `service` | Vendor | Products |
+|---|---|---|
+| `local` | Somfy local API | TaHoma, TaHoma Switch – [set up the local API](#local-api-recommended) |
+| `somfy_europe` | Somfy Europe | TaHoma, TaHoma Switch, Connexoon IO, Orange connectivity kit |
+| `somfy_australia` | Somfy Australia | Connexoon RTS and other products in Australia |
+| `somfy_north_america` | Somfy North America | TaHoma and other products in North America |
+| `cozytouch` | Atlantic, Thermor, Sauter | Cozytouch |
+| `flexom` | Bouygues | Flexom |
+| `hi_kumo` | Hitachi | Hi Kumo |
+| `rexel` | Rexel | Energeasy Connect |
+
+## Installation
+
+**Homebridge UI (recommended):** open *Plugins*, search for `@tplnet/homebridge-tahoma`, install it and fill in the settings form.
+
+**Command line:**
+
+```sh
+npm install -g @tplnet/homebridge-tahoma
 ```
+
+Then add the platform to your `config.json` (see [Configuration](#configuration)) and restart Homebridge.
+
+## Migrating from homebridge-tahoma
+
+> **Important:** never have both plugins installed at the same time. Homebridge only hands the cached accessories over to the new plugin if exactly one plugin provides the `Tahoma` platform. With both installed it removes them as orphaned – and HomeKit loses the rooms, scenes and automations of these accessories.
+
+1. Back up Homebridge (Homebridge UI → *Settings* → *Backup*).
+2. **First** uninstall `homebridge-tahoma`, **then** install `@tplnet/homebridge-tahoma`.
+3. Keep your existing `Tahoma` platform block in `config.json` unchanged (same `service`, same credentials – switching between cloud and local API changes the device identifiers).
+4. Restart Homebridge. For each accessory the log shows *"it seems like the plugin name changed from 'homebridge-tahoma' to '@tplnet/homebridge-tahoma'"* – the accessories have been taken over.
+
+## Configuration
+
+### Local API (recommended)
+
+```json
 {
-	"bridge": {
-		...
-	},
-
-	"description": "...",
-
-	"accessories": [],
-
-	"platforms":[
-		{
-			"platform": "Tahoma",
-			"name": "My TaHoma Box",
-
-			"service": "somfy_europe",
-			"user": "user@me.com",
-			"password": "MyPassw0rd",
-		}
-	]
+    "platforms": [
+        {
+            "platform": "Tahoma",
+            "name": "TaHoma",
+            "service": "local",
+            "user": "2001-1234-5678",
+            "password": "YOUR-LOCAL-API-TOKEN"
+        }
+    ]
 }
 ```
 
-Configuration parameters:
+`user` is the gateway PIN (or its IPv4 address), `password` the token from the TaHoma app – see [Local API](#local-api-recommended).
 
-| Parameter					| Type			| Default			| Note											|
-|---------------------------|---------------|-------------------|-----------------------------------------------|
-| `service`					| String		| 'somfy_europe'	| optional, service name  (see above)			|
-| `user`					| String		| null				| mandatory, your service account username (or [gateway PIN / IP address](#configure-local-api))	|
-| `password`				| String		| null				| mandatory, your service account password (or [API token](#configure-local-api))	|
-| `pollingPeriod`			| Integer		| 5 (local) / 60 (cloud)	| optional, event polling period in seconds (cloud: at least 10)	|
-| `refreshPeriod`			| Integer		| 1440 (cloud) / 30 (local)	| optional, device states refresh period in minutes, `0` disables it. The Somfy cloud allows only one state refresh per day and session; lower values cause `429 QUOTA_EXCEEDED` errors	|
-| `tlsInsecure`				| Boolean		| false				| optional, local API only: disable the gateway certificate check (by default verified against the [Overkiz root CA](https://ca.overkiz.com/overkiz-root-ca-2048.crt))	|
-| `exclude`					| String[]		| []				| optional, protocol, ui, widget or device name to exclude	|
-| `exposeScenarios`			| Boolean		| false				| optional, expose scenarios as HomeKit switches. Could also specify a list of string corresponding to scenarios names to expose	|
-| `devicesConfig`			| Object[]		| []				| optional list of device specific configuration (see below)	|
+### Cloud
 
-### Configure Local API
-Local API service is available on TaHoma and TaHoma switch gateways.
-
-**WARNING: Switching to local API will break your HomeKit configuration (automations) as local API device identifiers actually differs.**
-
-#### Newer approach
-The current way to active the developer mode on your gateway is to described in the official-looking developer GitHub [Somfy-Developer/Somfy-TaHoma-Developer-Mode](https://github.com/Somfy-Developer/Somfy-TaHoma-Developer-Mode):
-
-1. Open the TaHoma By Somfy application on your device.
-2. Navigate to the Configure the installation > Access the parameters of your TaHoma box in the application.
-3. Activate Developer Mode by tapping 7 times on the PIN of your gateway (like 2001-1234-5678) in a fast pace.
-4. The app will show you a dialog with T&Cs and once confirmed, you'll be offered a screen to generate the token.
-5. Configure the plugin service to Local API: `"service":"local"` with PIN of your gateway as `user` and the generated token as `password`.
-
-Note you do not need to use the online API credentials service anymore as you'll be given the token right away in the app.
-
-#### Older approach
-*Please note the Activate developer mode button in My Account appears to be not available anymore as of 08/2026 and the developer.somfy.com domain does not exist either.*
-
-To use Local API you will have to:
-1. Activate `developer mode` ([www.somfy.com](https://www.somfy.com) > My Account > Activate developer mode) 
-2. Generate API credentials at [https://dev.duboc.pro/homebridge-tahoma](https://dev.duboc.pro/homebridge-tahoma)
-3. Configure the plugin service to Local API: `"service":"local"`
-
-When using Local API service, please fill `user` with your gateway PIN number or IPv4 address and `password` with the token generated at [step 2](https://dev.duboc.pro/homebridge-tahoma)
-
-For more information, browse [https://developer.somfy.com/developer-mode](https://developer.somfy.com/developer-mode)
-
-
-
-# Specific device configuration
-
-This option allows you to apply a specific configuation to device or group of device.
-One configuration is composed of a `key` attribute containing device name, widget, uiClass, protocol or unique identifier and as many parameter depending of device type.
-
-```
+```json
 {
-	"key": "Bedroom door",
-	"param1": "value1"
-	...
+    "platforms": [
+        {
+            "platform": "Tahoma",
+            "name": "TaHoma",
+            "service": "somfy_europe",
+            "user": "user@example.com",
+            "password": "MyPassw0rd"
+        }
+    ]
 }
 ```
 
-| Alarm parameters	| Type		| Default		| Note					|
-|-------------------|-----------|---------------|-----------------------|
-| `stayZones`		| String	| 'A'			| optional, active zones (A,B,C) in 'Stay' mode	|
-| `nightZones`		| String	| 'B'			| optional, active zones (A,B,C) in 'Night' mode	|
-| `occupancySensor`	| Boolean	| false			| optional, add an occupancy widget linked to the alarm	|
+### All options
 
-| WindowCovering parameters	| Type		| Default		| Note			|
-|---------------------------|-----------|---------------|---------------|
-| `defaultPosition`			| Integer	| 0				| optional, final position for UpDown rollershutter after any command	|
-| `reverse`					| Boolean	| false			| optional, reverse up/down in case of bad mounting	|
-| `lowSpeed`				| Boolean / String	| false			| optional, use low speed for roller shutter supporting it. If string, specify slot time with format "HH:MM-HH:MM". Low speed will be enabled between them.	|
-| `blindMode`				| String	| null			| optional, change main slider action to orientation. By default, both closure and orientation will be set. When setting ``blindMode: true`` the blinds work in the following way: Opening the blinds or setting them to 100% will fully open them. Closing the blinds or setting them to 0% will fully close them. Setting the blinds to a value between 1% and 99% will first close the blinds and then adjust thier horizontal tilt in a way that 99% means fully horizonal = more light, and 1% means nearly closed = less light. |
-| `blindsOnRollerShutter`	| Boolean	| false				| optional, when blinds are installed on roller shutter motors allow slats to stay horizontal (opened) at intermediate position |
-| `movementDuration`		| Integer	| 0				| optional, duration of a full shutter movement from 'open' to 'close' in seconds. Will be used to approximate shutter intermediate position. (0 = disable feature) |
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `service` | string | `somfy_europe` | Service, see [Requirements](#requirements) |
+| `user` | string | – | **Required.** Local: gateway PIN or IPv4 address. Cloud: account e-mail |
+| `password` | string | – | **Required.** Local: API token. Cloud: account password |
+| `pollingPeriod` | number (s) | `5` local / `60` cloud | How often changes made elsewhere (remote, TaHoma app) are fetched. Cloud: at least 10 |
+| `refreshPeriod` | number (min) | `30` local / `1440` cloud | Periodic full state refresh, needed for RTS devices and physical remotes that do not report their state. `0` disables it. The Somfy cloud allows only one refresh per day – lower values cause `429 QUOTA_EXCEEDED` |
+| `tlsInsecure` | boolean | `false` | Local API only: skip the gateway certificate check (by default verified against the [Overkiz root CA](https://ca.overkiz.com/overkiz-root-ca-2048.crt)). Use only if the connection fails with a certificate error |
+| `exclude` | string[] | `[]` | Devices to hide: device name, widget, UI class or protocol (e.g. `"rts"`, `"Main door"`, `"PositionableHorizontalAwning"`) |
+| `exposeScenarios` | boolean / string[] | `false` | Cloud only: expose TaHoma scenarios as HomeKit switches; `true` for all or a list of scenario names |
+| `devicesConfig` | object[] | `[]` | Per-device settings, see [below](#device-specific-configuration) |
+| `debug` | boolean | `false` | Verbose log output |
 
-| GarageDoorOpener parameters	| Type			| Default		| Note				|
-|-------------------------------|---------------|---------------|-------------------|
-| `cyclic`						| Boolean		| false			| optional, restore closed state after `cycleDuration` seconds for stateless devices with cyclic behaviour	|
-| `cycleDuration`				| Integer		| false			| optional, cycle duration (in seconds) for cyclic mode (default: 5 sec)				|
-| `reverse`						| Boolean		| false			| optional, reverse up/down in case of bad mounting	|
-| `pedestrianDuration`			| Integer		| 0				| optional, duration for pedestrian position for RTS gates	|
+## Local API (recommended)
 
-| HeatingSystem parameters		| Type			| Default		| Note				|
-|-------------------------------|---------------|---------------|-------------------|
-| `derogationDuration`			| Integer		| 1				| optional, duration (in hours) for derogation orders	|
-| `comfort`						| Integer		| 19			| optional, comfort temperature used as display for heaters controled by pilot wire	|
-| `eco`							| Integer		| 17			| optional, comfort temperature used as display for heaters controled by pilot wire		|
+The local API talks directly to your gateway in your home network: no cloud account in Homebridge, no internet dependency, no rate limits and state changes within seconds.
 
+**Supported:** TaHoma and TaHoma Switch. **Not supported:** the 1st generation square TaHoma box and the Connectivity Kit.
 
-Full configuration example:
-```
-{
-	"bridge": {
-		...
-	},
+1. Open the **TaHoma by Somfy** app.
+2. Go to *Configure the installation* → *Access the parameters* of your gateway.
+3. Tap the gateway PIN (e.g. `2001-1234-5678`) **7 times** quickly to enable *Developer Mode*.
+4. Accept the terms and **generate a token**. Copy it right away – it is only shown once.
+5. Configure the plugin with `"service": "local"`, the PIN as `user` and the token as `password`.
 
-	"description": "...",
+The gateway is found in your network by its PIN (mDNS). If Homebridge runs in another network or VLAN, use the gateway's IP address as `user` (preferably with a fixed DHCP lease).
 
-	"accessories": [],
+> **Note:** cloud and local API use different device identifiers. Switching an existing setup from cloud to local makes HomeKit see all accessories as new ones – rooms and automations have to be set up again.
 
-	"platforms":[
-		{
-			"platform": "Tahoma",
-			"name": "My Tahoma Bridge",
+More information: [Somfy TaHoma Developer Mode](https://github.com/Somfy-Developer/Somfy-TaHoma-Developer-Mode).
 
-			"user": "user@me.com",
-			"password": "MyPassw0rd",
-			"service": "somfy_europe",
-			"exclude": ["hue", "rts", "Main door", "Main door", "PositionableHorizontalAwning"],
+## Device specific configuration
 
-			"devicesConfig": [
-				{
-					"key": "Alarm",
-					"stayZones": "A,C"
-				},
-				{
-					"key": "Bedroom blind",
-					"blindMode": true
-				},
-				{
-					"key": "GarageDoor",
-					"reverse": true
-				},
-				{
-					"key": "UpDownRollerShutter",
-					"defaultPosition": 50
-				}
-			]
-		}
-	]
-}
+`devicesConfig` applies settings to a single device or a group of devices. Each entry has a `key` – a device name, widget, UI class, protocol or unique identifier – and the settings for that device type:
+
+```json
+"devicesConfig": [
+    { "key": "Bedroom blind", "blindMode": true },
+    { "key": "UpDownRollerShutter", "defaultPosition": 50 },
+    { "key": "GarageDoor", "reverse": true },
+    { "key": "Alarm", "stayZones": "A,C" }
+]
 ```
 
-# Contribute
+### Roller shutters, blinds, awnings (WindowCovering)
 
-You are welcome to contribute to this plugin development by opening an issue in case of unexpected behaviour or unsupported device.
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `defaultPosition` | number | `0` | Final position shown for up/down-only (stateless) shutters after a command |
+| `reverse` | boolean | `false` | Swap up and down (e.g. after a wrong installation) |
+| `lowSpeed` | boolean / string | `false` | Use the low (silent) speed on shutters that support it. As string `"HH:MM-HH:MM"`, low speed is used only in that time slot (may span midnight, e.g. `"22:00-07:00"`) |
+| `blindMode` | boolean | `false` | Main slider controls the slats: 100 % fully opens, 0 % fully closes, 1–99 % closes the blind and tilts the slats (99 % = horizontal, most light; 1 % = nearly closed) |
+| `blindsOnRollerShutter` | boolean | `false` | Blinds mounted on roller shutter motors: keep the slats horizontal (open) at intermediate positions |
+| `movementDuration` | number (s) | `0` | Duration of a full movement from open to closed; used to estimate intermediate positions (`0` = off) |
 
-I do not expect any reward concerning this plugin, however, some users ask me for a [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L4X489MG7FUCN) button as sign of contribution. Feel free to use it.
+### Garage doors and gates (GarageDoorOpener)
 
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `cyclic` | boolean | `false` | For stateless devices that close by themselves: show *closed* again after `cycleDuration` |
+| `cycleDuration` | number (s) | `5` | Cycle duration for `cyclic` |
+| `reverse` | boolean | `false` | Swap open and close |
+| `pedestrianDuration` | number (s) | `0` | Duration of the pedestrian opening for RTS gates |
 
-# Migrating from `homebridge-tahoma`
+### Alarm
 
-> **Important:** never have both plugins installed at the same time. Homebridge only hands the cached accessories over to the new plugin if exactly one plugin provides the `Tahoma` platform; with both installed it removes them as orphaned, and HomeKit loses rooms, scenes and automations of these accessories.
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `stayZones` | string | `A` | Zones (A, B, C) armed in *Stay* mode |
+| `nightZones` | string | `B` | Zones (A, B, C) armed in *Night* mode |
+| `occupancySensor` | boolean | `false` | Add an occupancy sensor linked to the alarm |
 
-1. Back up Homebridge (Homebridge UI → Settings → Backup).
-2. **First** uninstall `homebridge-tahoma`, **then** install `@tplnet/homebridge-tahoma`. Keep the existing `Tahoma` platform block in `config.json` (same `service`, same credentials – switching between cloud and local API changes the device identifiers).
-3. Restart Homebridge. The log shows *"it seems like the plugin name changed from 'homebridge-tahoma' to '@tplnet/homebridge-tahoma'"* for each accessory: the cached accessories are taken over because the platform name is unchanged.
+### Heating
 
-# Releasing (maintainers)
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `derogationDuration` | number (h) | `1` | Duration of temporary (derogation) orders |
+| `comfort` | number (°C) | `19` | Comfort temperature shown for pilot wire heaters |
+| `eco` | number (°C) | `17` | Eco temperature shown for pilot wire heaters |
 
-```
-npm version patch   # or minor / major – bumps package.json and creates tag vX.Y.Z
+## Supported devices
+
+Roller shutters, exterior and interior venetian blinds, adjustable slats, awnings, pergolas, screens, curtains, swinging shutters, windows and window handles, garage doors and gates, door locks, lights and on/off switches, sirens and alarms, heating systems (Atlantic, Somfy thermostat, EvoHome, Hitachi), water heaters, ventilation, and sensors for temperature, humidity, light, air quality, smoke, water, rain, contact, occupancy and electricity consumption.
+
+A device type that is not supported shows up in the log as *"… not supported"*. Please [open an issue](https://github.com/tplnet/homebridge-tahoma/issues) with that log line and the device's widget name.
+
+## Troubleshooting
+
+| Problem | What to do |
+|---|---|
+| `No gateway found on your network` | Check that Developer Mode is enabled and that Homebridge is in the same network as the gateway. Otherwise use the gateway's IP address as `user` |
+| Certificate error with the local API | Set `"tlsInsecure": true` and please open an issue with the error message |
+| `401` with the local API | The token was revoked or mistyped – generate a new one in the TaHoma app |
+| `429 QUOTA_EXCEEDED` (cloud) | Increase `refreshPeriod` (default 1440) or set it to `0` – or switch to the [local API](#local-api-recommended) |
+| Changes made with a remote are not shown | RTS devices cannot report their state; keep `refreshPeriod` enabled |
+| Accessories disappeared after installing this plugin | Both plugins were installed at the same time – restore your backup and follow [Migrating](#migrating-from-homebridge-tahoma) |
+
+For a detailed log, set `"debug": true` and restart Homebridge.
+
+## Contributing
+
+Bug reports, device support requests and pull requests are welcome: <https://github.com/tplnet/homebridge-tahoma/issues>.
+Please include the Homebridge log (with `"debug": true`) and the device's UI class and widget name shown in the log at startup.
+
+## Releasing (maintainers)
+
+```sh
+npm version patch   # or minor / major – bumps package.json and creates the annotated tag vX.Y.Z
 git push --follow-tags
 ```
+
 The `Publish to npm` workflow **stages** the version on npm via Trusted Publishing (stage-only permission) and creates a GitHub release.
-The version becomes public only after approval with 2FA/passkey: npmjs.com > package > Staged Packages, or `npm stage approve <stage-id>`
+The version becomes public only after approval with 2FA/passkey: npmjs.com → package → *Staged Packages*, or `npm stage approve <stage-id>`
 (the id is shown in the workflow run summary and by `npm stage list <package>`).
+
+## License and credits
+
+[Apache License 2.0](LICENSE). Original work © Romain Duboc and contributors – thank you for creating and maintaining this plugin for years. Modifications © 2026 tplnet, see [NOTICE](NOTICE).
