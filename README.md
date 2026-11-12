@@ -1,3 +1,7 @@
+> **Fork notice:** This is a maintained fork of [dubocr/homebridge-tahoma](https://github.com/dubocr/homebridge-tahoma), published as `@tplnet/homebridge-tahoma`.
+> It uses the forked API client [`@tplnet/overkiz-client`](https://github.com/tplnet/overkiz-client).
+> The platform name stays `Tahoma`, so existing `config.json` entries and cached accessories keep working.
+
 # Overkiz (Somfy) - Homebridge-TaHoma
 
 Homebridge plugin supporting Overkiz based platforms :
@@ -17,7 +21,7 @@ Homebridge plugin supporting Overkiz based platforms :
 # Installation
 
 1. Install homebridge using: `npm install -g homebridge`
-2. Install this plugin using: `npm install -g homebridge-tahoma`
+2. Install this plugin using: `npm install -g @tplnet/homebridge-tahoma` (or search for `@tplnet/homebridge-tahoma` in the Homebridge UI)
 3. Update your configuration file. See bellow for a sample.
 
 # Configuration
@@ -180,3 +184,18 @@ Full configuration example:
 You are welcome to contribute to this plugin development by opening an issue in case of unexpected behaviour or unsupported device.
 
 I do not expect any reward concerning this plugin, however, some users ask me for a [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L4X489MG7FUCN) button as sign of contribution. Feel free to use it.
+
+
+# Migrating from `homebridge-tahoma`
+
+1. Back up Homebridge (Homebridge UI → Settings → Backup).
+2. Uninstall `homebridge-tahoma`, then install `@tplnet/homebridge-tahoma`. Keep the existing `Tahoma` platform block in `config.json`.
+3. Restart Homebridge. Cached accessories registered by the old plugin are taken over because the platform name is unchanged.
+
+# Releasing (maintainers)
+
+```
+npm version patch   # or minor / major – bumps package.json and creates tag vX.Y.Z
+git push --follow-tags
+```
+The `Publish to npm` workflow publishes the tag via npm Trusted Publishing and creates a GitHub release.

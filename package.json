@@ -1,17 +1,17 @@
 {
-  "name": "homebridge-tahoma",
-  "displayName": "Homebridge TaHoma",
+  "name": "@tplnet/homebridge-tahoma",
+  "displayName": "Homebridge TaHoma (tplnet fork)",
   "type": "module",
-  "version": "2.2.64",
-  "description": "Sample Platform plugin for TaHoma and Cozytouch services (Somfy,Atlantic,Thermor,Sauter): https://github.com/dubocr/homebridge-tahoma",
+  "version": "2.3.0",
+  "description": "Homebridge plugin for TaHoma and Cozytouch services (Somfy, Atlantic, Thermor, Sauter). Maintained fork of dubocr/homebridge-tahoma.",
   "author": "Romain DUBOC <dubocr@gmail.com>",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dubocr/homebridge-tahoma.git"
+    "url": "git+https://github.com/tplnet/homebridge-tahoma.git"
   },
   "bugs": {
-    "url": "https://github.com/dubocr/homebridge-tahoma/issues"
+    "url": "https://github.com/tplnet/homebridge-tahoma/issues"
   },
   "engines": {
     "node": "^22.10.0 || ^24.0.0",
@@ -23,8 +23,7 @@
     "watch": "npm run build && npm link && nodemon",
     "clean": "rimraf ./dist",
     "build": "rimraf ./dist && tsc",
-    "prepublishOnly": "npm run lint && npm run build && npm version patch --m 'Release %s'",
-    "postpublish": "npm run clean"
+    "prepublishOnly": "npm run lint && npm run build"
   },
   "keywords": [
     "homebridge-plugin",
@@ -33,10 +32,10 @@
     "somfy",
     "connexoon"
   ],
-  "homepage": "https://github.com/dubocr/homebridge-tahoma#readme",
+  "homepage": "https://github.com/tplnet/homebridge-tahoma#readme",
   "dependencies": {
     "moment": "^2.30.1",
-    "overkiz-client": "^1.0.23"
+    "overkiz-client": "npm:@tplnet/overkiz-client@^1.1.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -49,10 +48,14 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.59.2"
   },
-  "funding": {
-    "url": "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L4X489MG7FUCN"
-  },
   "allowScripts": {
     "fsevents@2.3.3": true
+  },
+  "contributors": [
+    "tplnet (fork maintainer)"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

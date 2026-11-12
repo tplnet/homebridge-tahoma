@@ -7,4 +7,4 @@ export const PLATFORM_NAME = 'Tahoma';
 /**
  * This must match the name of your plugin as defined the package.json
  */
-export const PLUGIN_NAME = 'homebridge-tahoma';
+export const PLUGIN_NAME = '@tplnet/homebridge-tahoma';
