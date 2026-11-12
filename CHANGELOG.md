@@ -1,3 +1,8 @@
+## 2.3.5 (2026-11-12)
+
+* Fix: accessory and service names are made HomeKit compatible (must start and end with a letter or number), e.g. "Büro kl." → "Büro kl", "IO (6649146)" → "IO 6649146". Removes the HAP-NodeJS "invalid 'Name' characteristic" warnings; cached accessories are renamed once (log: "Rename accessory …"). Names in the TaHoma app are not changed
+* Display name in the Homebridge UI: "Homebridge Somfy TaHoma (tplnet)"
+
 ## 2.3.3 (2026-11-12)
 
 * Fix: a discovery retry after a partial failure no longer builds already mapped accessories twice (duplicate state listeners)

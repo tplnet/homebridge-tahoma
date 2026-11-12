@@ -3,6 +3,7 @@ import { CharacteristicValue, HAPStatus, Logger, PlatformAccessory, Service } fr
 import { Device, State, Command, Action, ExecutionState } from 'overkiz-client';
 import { Platform } from './Platform.js';
 import { GREY } from './colors.js';
+import { hapName } from './hapName.js';
 
 export default abstract class Mapper {
     private static readonly TERMINAL_STATES: Array<ExecutionState> = [
@@ -53,6 +54,7 @@ export default abstract class Mapper {
 
         const info = this.accessory.getService(Services.AccessoryInformation);
         if (info) {
+            info.setCharacteristic(Characteristics.Name, hapName(this.device.label));
             info.setCharacteristic(Characteristics.Manufacturer, this.device.manufacturer);
             info.setCharacteristic(Characteristics.Model, this.device.model);
             info.setCharacteristic(Characteristics.SerialNumber, this.device.address.substring(0, 64));
@@ -93,7 +95,7 @@ export default abstract class Mapper {
 
     protected registerService(type: any, subtype?: string): Service {
         let service: Service;
-        const name = subtype ? this.translate(subtype) : this.device.label;
+        const name = hapName(subtype ? this.translate(subtype) : this.device.label);
         if (subtype) {
             service = this.accessory.getServiceById(type, subtype) || this.accessory.addService(type, name, subtype);
         } else {

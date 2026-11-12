@@ -6,6 +6,7 @@ import Mapper from './Mapper.js';
 import SceneMapper from './SceneMapper.js';
 import { CustomCharacteristics } from './CustomCharacteristics.js';
 import { BLUE, GREY, RESET } from './colors.js';
+import { hapName } from './hapName.js';
 
 
 export let Services: typeof Service;
@@ -119,6 +120,7 @@ export class Platform implements DynamicPlatformPlugin {
     async discoverDevices() {
         try {
             const uuids = Array<string>();
+            const renamed = Array<PlatformAccessory>();
             const devices = await this.client.getDevices();
             this.log.debug(devices.length + ' devices discovered');
 
@@ -139,22 +141,12 @@ export class Platform implements DynamicPlatformPlugin {
                 let accessory = this.accessories.find(accessory => accessory.UUID === device.uuid);
 
                 if (accessory) {
-                    // the accessory already exists
-                    //this.log.info('Updating accessory:', accessory.displayName);
-                    /*
-                    const newaccessory = new this.api.platformAccessory(device.label, device.uuid);
-                    newaccessory.context.device = device;
-                    await this.configureAccessory(newaccessory);
-                    const services = newaccessory.services.map((service) => service.UUID);
-                    accessory.services
-                        .filter((service) => !services.includes(service.UUID))
-                        .forEach((services) => accessory?.removeService(services));
-                    this.api.updatePlatformAccessories([accessory]);
-                    */
+                    // the accessory already exists: fix a cached name that HomeKit does not accept
+                    this.renameCachedAccessory(accessory, hapName(device.label), renamed);
                 } else {
                     // the accessory does not yet exist, so we need to create it
                     this.log.info('Create accessory:', device.label);
-                    accessory = new this.api.platformAccessory(device.label, device.uuid);
+                    accessory = new this.api.platformAccessory(hapName(device.label), device.uuid);
                     //accessory.context.device = device;
                     await this.configureAccessory(accessory);
                     this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
@@ -192,10 +184,12 @@ export class Platform implements DynamicPlatformPlugin {
 
                     let accessory = this.accessories.find(accessory => accessory.UUID === actionGroup.oid);
 
-                    if (!accessory) {
+                    if (accessory) {
+                        this.renameCachedAccessory(accessory, hapName(actionGroup.label, 'Scenario'), renamed);
+                    } else {
                         // the accessory does not yet exist, so we need to create it
                         this.log.info('Create accessory', actionGroup.label);
-                        accessory = new this.api.platformAccessory(actionGroup.label, actionGroup.oid);
+                        accessory = new this.api.platformAccessory(hapName(actionGroup.label, 'Scenario'), actionGroup.oid);
                         await this.configureAccessory(accessory);
                         this.api.registerPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
                     }
@@ -208,6 +202,11 @@ export class Platform implements DynamicPlatformPlugin {
                     }
                     uuids.push(actionGroup.oid);
                 }
+            }
+
+            if (renamed.length > 0) {
+                // persist the new names in the accessory cache
+                this.api.updatePlatformAccessories(renamed);
             }
 
             const deleted = this.accessories.filter((accessory) => !uuids.includes(accessory.UUID));
@@ -227,6 +226,17 @@ export class Platform implements DynamicPlatformPlugin {
             this.log.error('Retry in ' + this.retryDelay + ' sec...');
             setTimeout(this.discoverDevices.bind(this), this.retryDelay * 1000);
             this.retryDelay = Math.min(this.retryDelay * 2, MAX_RETRY_DELAY);
+        }
+    }
+
+    /**
+     * Give a cached accessory a HomeKit compatible name (see hapName), e.g. "Büro kl." -> "Büro kl".
+     */
+    private renameCachedAccessory(accessory: PlatformAccessory, name: string, renamed: Array<PlatformAccessory>) {
+        if (accessory.displayName !== name) {
+            this.log.info(`Rename accessory '${accessory.displayName}' to '${name}' (HomeKit naming rules)`);
+            accessory.updateDisplayName(name);
+            renamed.push(accessory);
         }
     }
 

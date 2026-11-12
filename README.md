@@ -1,8 +1,10 @@
-# Homebridge TaHoma (@tplnet/homebridge-tahoma)
+# Homebridge Somfy TaHoma (tplnet)
 
 [![npm](https://img.shields.io/npm/v/@tplnet/homebridge-tahoma)](https://www.npmjs.com/package/@tplnet/homebridge-tahoma)
 [![CI](https://github.com/tplnet/homebridge-tahoma/actions/workflows/ci.yml/badge.svg)](https://github.com/tplnet/homebridge-tahoma/actions/workflows/ci.yml)
 [![License](https://img.shields.io/npm/l/@tplnet/homebridge-tahoma)](LICENSE)
+
+Package: [`@tplnet/homebridge-tahoma`](https://www.npmjs.com/package/@tplnet/homebridge-tahoma)
 
 Control your **Somfy TaHoma** devices – roller shutters, blinds, awnings, gates, garage doors, lights, heating, alarms, sensors – with **Apple Home** and Siri, through [Homebridge](https://homebridge.io).
 
