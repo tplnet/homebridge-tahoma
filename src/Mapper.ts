@@ -5,6 +5,10 @@ import { Platform } from './Platform.js';
 import { GREY } from './colors.js';
 
 export default abstract class Mapper {
+    private static readonly TERMINAL_STATES: Array<ExecutionState> = [
+        ExecutionState.COMPLETED, ExecutionState.FAILED, ExecutionState.TIMED_OUT, ExecutionState.NOT_TRANSMITTED,
+    ];
+
     protected log: Logger;
     private postponeTimer;
     private debounceTimer;
@@ -12,6 +16,10 @@ export default abstract class Mapper {
     //protected config: Record<string, string | boolean | number> = {};
     private executionId;
     private actionPromise;
+    // Commands started by this mapper that have not reached a terminal state yet.
+    // Tracked synchronously so isIdle is reliable during the batch window, before
+    // the execId is known (prevents a stale server echo overwriting a new value).
+    private inFlight = 0;
     protected expectedStates: Array<string> = [];
 
     constructor(
@@ -166,12 +174,15 @@ export default abstract class Mapper {
         if (this.actionPromise) {
             this.actionPromise.action.addCommands(commands);
         } else {
+            this.inFlight++;
             this.actionPromise = new Promise((resolve, reject) => {
                 setTimeout(async () => {
                     try {
                         this.executionId = await this.platform.executeAction(label, this.actionPromise.action, highPriority, standalone);
                         resolve(this.actionPromise.action);
                     } catch (error: any) {
+                        // Execution never started: no terminal event will release the slot.
+                        release();
                         this.error(commandName + ' ' + error.message);
                         reject(HAPStatus.SERVICE_COMMUNICATION_FAILURE);
                     }
@@ -179,14 +190,29 @@ export default abstract class Mapper {
                 }, 100);
 
             });
-            this.actionPromise.action = new Action(this.device.deviceURL, commands);
-            this.actionPromise.action.on('update', (state, event) => {
+            let settled = false;
+            const release = () => {
+                if (!settled) {
+                    settled = true;
+                    this.inFlight = Math.max(0, this.inFlight - 1);
+                }
+            };
+            const action = new Action(this.device.deviceURL, commands);
+            // Every setter of a batch may attach its own 'update' listener to the shared action.
+            action.setMaxListeners(0);
+            this.actionPromise.action = action;
+            action.on('update', (state, event) => {
                 if (state === ExecutionState.FAILED) {
-                    this.error(commandName, event.failureType);
+                    this.error(commandName, event?.failureType);
                 } else if (state === ExecutionState.COMPLETED) {
                     this.info(commandName, state);
+                } else if (state === ExecutionState.TIMED_OUT || state === ExecutionState.NOT_TRANSMITTED) {
+                    this.warn(commandName, state);
                 } else {
                     this.debug(commandName, state);
+                }
+                if (Mapper.TERMINAL_STATES.includes(state)) {
+                    release();
                 }
             });
         }
@@ -252,9 +278,8 @@ export default abstract class Mapper {
         });
     }
 
-    // OLD
     get isIdle() {
-        return !this.platform.client.hasExecution(this.executionId);
+        return this.inFlight === 0 && !this.platform.client.hasExecution(this.executionId);
     }
 
     async cancelExecution() {

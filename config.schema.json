@@ -89,9 +89,9 @@
       "refreshPeriod": {
         "title": "Refresh period",
         "type": "number",
-        "minimum": 10,
+        "minimum": 0,
         "placeholder": 30,
-        "description": "Period (in minutes) for refreshing device changes made locally (with remote control for eg.)"
+        "description": "Period (in minutes) for refreshing device changes made locally (with remote control for eg.). Needed for RTS devices and some physical remotes. Set 0 to disable it (e.g. on repeated '429 QUOTA_EXCEEDED' errors)."
       },
       "exposeScenarios": {
         "title": "Expose scenarios",

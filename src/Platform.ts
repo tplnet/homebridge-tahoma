@@ -12,6 +12,10 @@ export let Services: typeof Service;
 export let Characteristics: typeof Characteristic;
 
 const DEFAULT_RETRY_DELAY = 60;
+const MAX_RETRY_DELAY = 300;
+
+// Process-wide handlers must be installed once, even with several Tahoma platforms configured.
+let processHandlersInstalled = false;
 
 /**
  * HomebridgePlatform
@@ -37,8 +41,11 @@ export class Platform implements DynamicPlatformPlugin {
         new CustomCharacteristics(this.api.hap);
         this.log.debug('Finished initializing platform:', this.config.name);
 
-        process.on('unhandledRejection', (error: any) => this.log.error(error));
-        process.on('uncaughtException', (error: any) => this.log.error(error));
+        if (!processHandlersInstalled) {
+            processHandlersInstalled = true;
+            process.on('unhandledRejection', (error: any) => this.log.error('Unhandled rejection:', error));
+            process.on('uncaughtException', (error: any) => this.log.error('Uncaught exception:', error));
+        }
 
         this.exclude = config.exclude || [];
         this.exclude.push('Pod', 'ConfigurationComponent', 'NetworkComponent', 'ProtocolGateway', 'ConsumptionSensor',
@@ -193,11 +200,19 @@ export class Platform implements DynamicPlatformPlugin {
             const deleted = this.accessories.filter((accessory) => !uuids.includes(accessory.UUID));
             this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, deleted);
             this.retryDelay = DEFAULT_RETRY_DELAY;
+
+            // getDevices() only returns the cloud's stored snapshot, which can be stale for
+            // changes made outside HomeKit. Refresh once now instead of waiting a full
+            // refreshPeriod. Skipped when the periodic refresh is disabled (refreshPeriod: 0).
+            if (this.config['refreshPeriod'] !== 0) {
+                this.client.refreshAllStates().catch((error: any) =>
+                    this.log.debug('Initial state refresh failed:', error?.message ?? error));
+            }
         } catch (error: any) {
             this.log.error(error);
             this.log.error('Retry in ' + this.retryDelay + ' sec...');
             setTimeout(this.discoverDevices.bind(this), this.retryDelay * 1000);
-            this.retryDelay *= 2;
+            this.retryDelay = Math.min(this.retryDelay * 2, MAX_RETRY_DELAY);
         }
     }
 
