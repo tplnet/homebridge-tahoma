@@ -1,3 +1,8 @@
+## 2.3.2 (2026-11-12)
+
+* Security: removed dependency `moment` (GHSA-4p3w-j4w9-5jqw); the `lowSpeed` time slot is computed with `Date` (same behaviour, verified against the old implementation)
+* Security: lockfile pulls axios 1.21.1 / follow-redirects 1.16.3 through `@tplnet/overkiz-client`; dev dependencies fixed (`npm audit fix`, minimatch override) – `npm audit` reports 0 vulnerabilities
+
 ## 2.3.1 (2026-11-12)
 
 * Requires `@tplnet/overkiz-client` ^1.2.0: cloud rate limits respected (default `refreshPeriod` 1440 min in the cloud, no re-login on 429), local API: TLS verified with the Overkiz root CA (`tlsInsecure` as fallback), discovery via mDNS `gateway_pin`, high priority/scenarios/refresh fall back gracefully

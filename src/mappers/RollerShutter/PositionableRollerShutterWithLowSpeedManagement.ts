@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { Command } from 'overkiz-client';
 import RollerShutter from '../RollerShutter.js';
 export default class PositionableRollerShutterWithLowSpeedManagement extends RollerShutter {
@@ -20,16 +19,16 @@ export default class PositionableRollerShutterWithLowSpeedManagement extends Rol
         if (this.lowSpeed === true) {
             return true;
         } else if (typeof this.lowSpeed === 'string') {
-            const parts = this.lowSpeed.split(new RegExp('[-:]'));
-            const now = moment();
-            const start = moment();
-            const end = moment();
-            start.set({ 'hour': parseInt(parts[0]), 'minute': parseInt(parts[1]), 'second': 0, 'millisecond': 0 });
-            end.set({ 'hour': parseInt(parts[2]), 'minute': parseInt(parts[3]), 'second': 0, 'millisecond': 0 });
-            if (end.isBefore(start)) {
-                return now.isAfter(start) || now.isBefore(end);
+            // Time slot "HH:MM-HH:MM" (local time), may wrap around midnight
+            const parts = this.lowSpeed.split(new RegExp('[-:]')).map((part) => parseInt(part));
+            const date = new Date();
+            const now = date.getHours() * 60 + date.getMinutes() + date.getSeconds() / 60;
+            const start = parts[0] * 60 + parts[1];
+            const end = parts[2] * 60 + parts[3];
+            if (end < start) {
+                return now > start || now < end;
             } else {
-                return now.isBetween(start, end);
+                return now > start && now < end;
             }
         } else {
             return false;
