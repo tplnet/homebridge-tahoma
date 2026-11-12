@@ -9,6 +9,7 @@
 * Fix: process-wide error handlers are installed only once
 * Feature: one full-state refresh after startup; `refreshPeriod: 0` disables the periodic refresh (from maximekduval/homebridge-tahoma)
 * Includes client fixes of `@tplnet/overkiz-client` 1.1.0 (lost batched commands, reconnect after network error, 429 re-login)
+* Node.js 26 supported (`engines`, CI matrix); tested with Homebridge 2.5.0
 
 ## 2.2.54 (2022-12-20)
 
