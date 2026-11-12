@@ -199,4 +199,6 @@ I do not expect any reward concerning this plugin, however, some users ask me fo
 npm version patch   # or minor / major – bumps package.json and creates tag vX.Y.Z
 git push --follow-tags
 ```
-The `Publish to npm` workflow publishes the tag via npm Trusted Publishing and creates a GitHub release.
+The `Publish to npm` workflow **stages** the version on npm via Trusted Publishing (stage-only permission) and creates a GitHub release.
+The version becomes public only after approval with 2FA/passkey: npmjs.com > package > Staged Packages, or `npm stage approve <stage-id>`
+(the id is shown in the workflow run summary and by `npm stage list <package>`).
