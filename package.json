@@ -2,7 +2,7 @@
   "name": "@tplnet/homebridge-tahoma",
   "displayName": "Homebridge TaHoma (tplnet fork)",
   "type": "module",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Homebridge plugin for TaHoma and Cozytouch services (Somfy, Atlantic, Thermor, Sauter). Maintained fork of dubocr/homebridge-tahoma.",
   "author": "Romain DUBOC <dubocr@gmail.com>",
   "license": "Apache-2.0",
