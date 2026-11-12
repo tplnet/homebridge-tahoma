@@ -1,5 +1,5 @@
 blank_issues_enabled: true
 contact_links:
-  - name: Local API token (upstream service)
-    url: https://dev.duboc.pro/homebridge-tahoma
-    about: Generate credentials for the Somfy local API (service run by the original author)
+  - name: Local API (Somfy TaHoma Developer Mode)
+    url: https://github.com/Somfy-Developer/Somfy-TaHoma-Developer-Mode
+    about: Activate developer mode and generate a token directly in the TaHoma app

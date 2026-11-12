@@ -35,7 +35,7 @@
   "homepage": "https://github.com/tplnet/homebridge-tahoma#readme",
   "dependencies": {
     "moment": "^2.30.1",
-    "overkiz-client": "npm:@tplnet/overkiz-client@^1.1.1"
+    "overkiz-client": "npm:@tplnet/overkiz-client@^1.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

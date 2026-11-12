@@ -90,8 +90,13 @@
         "title": "Refresh period",
         "type": "number",
         "minimum": 0,
-        "placeholder": 30,
-        "description": "Period (in minutes) for refreshing device changes made locally (with remote control for eg.). Needed for RTS devices and some physical remotes. Set 0 to disable it (e.g. on repeated '429 QUOTA_EXCEEDED' errors)."
+        "placeholder": 1440,
+        "description": "Period (in minutes) for refreshing device changes made locally (with remote control for eg.). Needed for RTS devices and some physical remotes. Default: 1440 (once a day) for cloud services – the Somfy cloud allows only one refresh per day –, 30 for the local API. Set 0 to disable it."
+      },
+      "tlsInsecure": {
+        "title": "Disable TLS certificate check (local API)",
+        "type": "boolean",
+        "description": "Only if the connection to your gateway fails with a certificate error. By default the gateway certificate is verified against the Overkiz root CA."
       },
       "exposeScenarios": {
         "title": "Expose scenarios",
@@ -268,7 +273,8 @@
       "expanded": false,
       "items": [
         "pollingPeriod",
-        "refreshPeriod"
+        "refreshPeriod",
+        "tlsInsecure"
       ]
     }
   ]

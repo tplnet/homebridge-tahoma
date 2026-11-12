@@ -173,7 +173,11 @@ export class Platform implements DynamicPlatformPlugin {
 
 
             if (this.exposeScenarios) {
-                const actionGroups = await this.client.getActionGroups();
+                // Scenarios are optional: a failure here must not abort device discovery
+                const actionGroups = await this.client.getActionGroups().catch((error) => {
+                    this.log.warn('Unable to load scenarios:', error);
+                    return [];
+                });
 
                 for (const actionGroup of actionGroups) {
                     if (this.exclude.includes(actionGroup.label) || actionGroup.label.startsWith('internal:') || actionGroup.label === '') {
@@ -201,10 +205,11 @@ export class Platform implements DynamicPlatformPlugin {
             this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, deleted);
             this.retryDelay = DEFAULT_RETRY_DELAY;
 
-            // getDevices() only returns the cloud's stored snapshot, which can be stale for
-            // changes made outside HomeKit. Refresh once now instead of waiting a full
-            // refreshPeriod. Skipped when the periodic refresh is disabled (refreshPeriod: 0).
-            if (this.config['refreshPeriod'] !== 0) {
+            // Cloud: getDevices() only returns the stored snapshot, which can be stale for changes
+            // made outside HomeKit. Refresh once now (fresh session, within the 1/day limit) instead
+            // of waiting a full refreshPeriod. Not needed locally (devices were just read from the
+            // gateway) and skipped when the periodic refresh is disabled (refreshPeriod: 0).
+            if (!this.client.isLocal && this.config['refreshPeriod'] !== 0) {
                 this.client.refreshAllStates().catch((error: any) =>
                     this.log.debug('Initial state refresh failed:', error?.message ?? error));
             }

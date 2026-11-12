@@ -58,7 +58,8 @@ Configuration parameters:
 | `user`					| String		| null				| mandatory, your service account username (or [gateway PIN / IP address](#configure-local-api))	|
 | `password`				| String		| null				| mandatory, your service account password (or [API token](#configure-local-api))	|
 | `pollingPeriod`			| Integer		| 30				| optional, bridge polling period in seconds	|
-| `refreshPeriod`			| Integer		| 30				| optional, device states refresh period in minutes	|
+| `refreshPeriod`			| Integer		| 1440 (cloud) / 30 (local)	| optional, device states refresh period in minutes, `0` disables it. The Somfy cloud allows only one state refresh per day and session; lower values cause `429 QUOTA_EXCEEDED` errors	|
+| `tlsInsecure`				| Boolean		| false				| optional, local API only: disable the gateway certificate check (by default verified against the [Overkiz root CA](https://ca.overkiz.com/overkiz-root-ca-2048.crt))	|
 | `exclude`					| String[]		| []				| optional, protocol, ui, widget or device name to exclude	|
 | `exposeScenarios`			| Boolean		| false				| optional, expose scenarios as HomeKit switches. Could also specify a list of string corresponding to scenarios names to expose	|
 | `devicesConfig`			| Object[]		| []				| optional list of device specific configuration (see below)	|
