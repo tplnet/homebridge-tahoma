@@ -1,3 +1,10 @@
+## 2.3.3 (2026-11-12)
+
+* Fix: a discovery retry after a partial failure no longer builds already mapped accessories twice (duplicate state listeners)
+* Config schema/README: `pollingPeriod` defaults 5 s (local) / 60 s (cloud), minimum 1 s for the local API
+* README: migration from `homebridge-tahoma` – never install both plugins at the same time (Homebridge would remove the cached accessories)
+* Works with `@tplnet/overkiz-client` 1.3.0 (faster local polling, polling back-off capped, mDNS fixes)
+
 ## 2.3.2 (2026-11-12)
 
 * Security: removed dependency `moment` (GHSA-4p3w-j4w9-5jqw); the `lowSpeed` time slot is computed with `Date` (same behaviour, verified against the old implementation)

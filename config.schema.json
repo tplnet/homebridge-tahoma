@@ -82,9 +82,9 @@
       "pollingPeriod": {
         "title": "Polling period",
         "type": "number",
-        "minimum": 10,
-        "placeholder": 60,
-        "description": "Period (in seconds) for fetching device changes made from other controller (with TaHoma app for eg.)"
+        "minimum": 1,
+        "placeholder": 5,
+        "description": "Period (in seconds) for fetching device changes made from other controller (with TaHoma app for eg.). Default: 5 for the local API, 60 for cloud services (cloud: at least 10)"
       },
       "refreshPeriod": {
         "title": "Refresh period",

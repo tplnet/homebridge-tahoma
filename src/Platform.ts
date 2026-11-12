@@ -34,6 +34,9 @@ export class Platform implements DynamicPlatformPlugin {
     private translations;
     private executionPromise;
     private retryDelay = DEFAULT_RETRY_DELAY;
+    // UUIDs already mapped: a discovery retry after a partial failure must not build them twice
+    // (that would attach duplicate state listeners)
+    private readonly mapped = new Set<string>();
 
     constructor(public readonly log: Logger, public readonly config: PlatformConfig, public readonly api: API) {
         Services = this.api.hap.Service;
@@ -166,7 +169,10 @@ export class Platform implements DynamicPlatformPlugin {
                     .catch(() => import(`./mappers/${device.definition.uiClass}.js`))
                     .then((c) => c.default)
                     .catch(() => ({ default: Mapper }));
-                new mapper(this, accessory, device).build();
+                if (!this.mapped.has(device.uuid)) {
+                    new mapper(this, accessory, device).build();
+                    this.mapped.add(device.uuid);
+                }
 
                 uuids.push(device.uuid);
             }
@@ -196,7 +202,10 @@ export class Platform implements DynamicPlatformPlugin {
 
                     this.log.info('Map scene', accessory.displayName);
 
-                    new SceneMapper(this, accessory, actionGroup);
+                    if (!this.mapped.has(actionGroup.oid)) {
+                        new SceneMapper(this, accessory, actionGroup);
+                        this.mapped.add(actionGroup.oid);
+                    }
                     uuids.push(actionGroup.oid);
                 }
             }

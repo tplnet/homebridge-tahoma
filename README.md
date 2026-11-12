@@ -57,7 +57,7 @@ Configuration parameters:
 | `service`					| String		| 'somfy_europe'	| optional, service name  (see above)			|
 | `user`					| String		| null				| mandatory, your service account username (or [gateway PIN / IP address](#configure-local-api))	|
 | `password`				| String		| null				| mandatory, your service account password (or [API token](#configure-local-api))	|
-| `pollingPeriod`			| Integer		| 30				| optional, bridge polling period in seconds	|
+| `pollingPeriod`			| Integer		| 5 (local) / 60 (cloud)	| optional, event polling period in seconds (cloud: at least 10)	|
 | `refreshPeriod`			| Integer		| 1440 (cloud) / 30 (local)	| optional, device states refresh period in minutes, `0` disables it. The Somfy cloud allows only one state refresh per day and session; lower values cause `429 QUOTA_EXCEEDED` errors	|
 | `tlsInsecure`				| Boolean		| false				| optional, local API only: disable the gateway certificate check (by default verified against the [Overkiz root CA](https://ca.overkiz.com/overkiz-root-ca-2048.crt))	|
 | `exclude`					| String[]		| []				| optional, protocol, ui, widget or device name to exclude	|
@@ -189,9 +189,11 @@ I do not expect any reward concerning this plugin, however, some users ask me fo
 
 # Migrating from `homebridge-tahoma`
 
+> **Important:** never have both plugins installed at the same time. Homebridge only hands the cached accessories over to the new plugin if exactly one plugin provides the `Tahoma` platform; with both installed it removes them as orphaned, and HomeKit loses rooms, scenes and automations of these accessories.
+
 1. Back up Homebridge (Homebridge UI → Settings → Backup).
-2. Uninstall `homebridge-tahoma`, then install `@tplnet/homebridge-tahoma`. Keep the existing `Tahoma` platform block in `config.json`.
-3. Restart Homebridge. Cached accessories registered by the old plugin are taken over because the platform name is unchanged.
+2. **First** uninstall `homebridge-tahoma`, **then** install `@tplnet/homebridge-tahoma`. Keep the existing `Tahoma` platform block in `config.json` (same `service`, same credentials – switching between cloud and local API changes the device identifiers).
+3. Restart Homebridge. The log shows *"it seems like the plugin name changed from 'homebridge-tahoma' to '@tplnet/homebridge-tahoma'"* for each accessory: the cached accessories are taken over because the platform name is unchanged.
 
 # Releasing (maintainers)
 
