@@ -1,5 +1,6 @@
 name: Compatibility & CVE check
-# Runs every Monday and on demand (Actions > Compatibility & CVE check > Run workflow).
+# Runs every Monday, on demand (Actions > Compatibility & CVE check > Run workflow) and on pull
+# requests that change dependencies (e.g. from Dependabot) – merge them when all checks are green.
 # 1. CVE: `npm audit` – fails on any known vulnerability in the runtime dependencies.
 # 2. Homebridge: builds the plugin and starts it with the newest Homebridge release (and the beta)
 #    on all supported Node.js versions (scripts/homebridge-smoke.mjs).
@@ -10,6 +11,8 @@ on:
   workflow_dispatch:
   push:
     branches: [master]
+    paths: ['package.json', 'package-lock.json', '.github/workflows/compat.yml', 'scripts/homebridge-smoke.mjs']
+  pull_request:
     paths: ['package.json', 'package-lock.json', '.github/workflows/compat.yml', 'scripts/homebridge-smoke.mjs']
 
 permissions:

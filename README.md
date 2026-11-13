@@ -213,7 +213,7 @@ This plugin is kept compatible with the **newest Homebridge release** and free o
   - runs `npm audit` – any known vulnerability in the runtime dependencies fails the check,
   - builds the plugin and starts it with **homebridge@latest** and **homebridge@beta** on Node.js 22, 24 and 26 (`npm run smoke`): the plugin must load, be accepted as compatible (`engines`) and initialise without errors.
 - **Every release** runs the same CVE and Homebridge checks before the version is staged on npm – a release with a known vulnerability or an incompatibility is not published.
-- **Dependabot** opens weekly pull requests for dependency and GitHub Actions updates.
+- **Dependabot** opens weekly pull requests for dependency and GitHub Actions updates. Each of them runs CI and the full compatibility & CVE check (Homebridge latest/beta, Node.js 22/24/26) – when all checks are green, the update can simply be merged.
 
 Found a security issue? Please report it privately via GitHub (*Security* → *Report a vulnerability*) instead of a public issue.
 
