@@ -30,7 +30,7 @@ export default class AdjustableSlatsRollerShutter extends VenetianBlind {
 
         switch(name) {
             case 'core:ClosureOrRockerPositionState':
-                this.currentPosition?.updateValue(this.reversedValue(value));
+                this.updateCurrentPosition(this.reversedValue(value));
                 if(!this.device.hasState('core:TargetClosureState')) {
                     this.targetPosition?.updateValue(this.reversedValue(value));
                 }

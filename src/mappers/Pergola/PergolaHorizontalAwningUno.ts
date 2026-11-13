@@ -6,7 +6,7 @@ export default class PergolaHorizontalAwningUno extends Pergola {
         value = 100 - value;
         switch (name) {
             case 'core:ClosureState':
-                this.currentPosition?.updateValue(this.reversedValue(value));
+                this.updateCurrentPosition(this.reversedValue(value));
                 if (!this.device.hasState('core:TargetClosureState') && this.isIdle) {
                     this.targetPosition?.updateValue(this.reversedValue(value));
                 }
@@ -14,7 +14,7 @@ export default class PergolaHorizontalAwningUno extends Pergola {
             case 'core:TargetClosureState':
                 this.targetPosition?.updateValue(this.reversedValue(value));
                 if (!this.device.hasState('core:ClosureState')) {
-                    this.currentPosition?.updateValue(this.reversedValue(value));
+                    this.updateCurrentPosition(this.reversedValue(value));
                 }
                 break;
         }

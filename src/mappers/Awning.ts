@@ -37,13 +37,13 @@ export default class Awning extends RollerShutter {
     protected onStateChanged(name: string, value) {
         switch(name) {
             case 'core:DeploymentState':
-                this.currentPosition?.updateValue(this.reversedValue(value));
+                this.updateCurrentPosition(this.reversedValue(value));
                 if(!this.device.hasState('core:TargetClosureState')) {
                     this.targetPosition?.updateValue(this.reversedValue(value));
                 }
                 break;
             case 'core:ClosureState':
-                this.currentPosition?.updateValue(this.reversedValue(value));
+                this.updateCurrentPosition(this.reversedValue(value));
                 if(!this.device.hasState('core:TargetClosureState')) {
                     this.targetPosition?.updateValue(this.reversedValue(value));
                 }
@@ -51,7 +51,7 @@ export default class Awning extends RollerShutter {
             case 'core:TargetClosureState':
                 this.targetPosition?.updateValue(this.reversedValue(value));
                 if(!this.device.hasState('core:ClosureState')) {
-                    this.currentPosition?.updateValue(this.reversedValue(value));
+                    this.updateCurrentPosition(this.reversedValue(value));
                 }
                 break;
         }

@@ -6,7 +6,7 @@ export default class PositionableHorizontalAwningUno extends Awning {
                 if(this.isIdle) {
                     this.targetPosition?.updateValue(this.reversedValue(value));
                 }
-                this.currentPosition?.updateValue(this.reversedValue(value));
+                this.updateCurrentPosition(this.reversedValue(value));
                 break;
         }
     }

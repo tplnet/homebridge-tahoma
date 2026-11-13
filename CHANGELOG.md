@@ -1,3 +1,7 @@
+## 2.3.8 (2026-11-13)
+
+* Fix: roller shutters, blinds and awnings no longer stay on "Closing…"/"Opening…" in Apple Home when the motor reports its end position slightly off (e.g. 98 % closed instead of 100 %). A reported position within 3 % of the target position is shown as the target
+
 ## 2.3.7 (2026-11-13)
 
 * Requires `@tplnet/overkiz-client` ^1.3.2: no wrong `TIMED_OUT` 2 minutes after a successful command with the local API; the device is no longer considered busy after completion, so state changes (remote, TaHoma app) show up right away

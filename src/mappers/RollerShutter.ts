@@ -5,6 +5,8 @@ import Mapper from '../Mapper.js';
 import { MyPositionCharacteristic } from '../CustomCharacteristics.js';
 
 export default class RollerShutter extends Mapper {
+    // Maximum difference (in %) between reported and target position that is still shown as the target
+    protected static readonly POSITION_TOLERANCE = 3;
     protected expectedStates = ['core:ClosureState', 'core:TargetClosureState'];
     protected windowService: Service | undefined;
 
@@ -189,10 +191,24 @@ export default class RollerShutter extends Mapper {
         return this.reverse ? value : (100 - value);
     }
 
+    /**
+     * Show a reported position. Somfy motors often report the end position slightly off (e.g. 98 % closed
+     * instead of 100 %): Apple Home would then show "Closing…" forever because current and target position
+     * never match. A position within POSITION_TOLERANCE of the target is therefore shown as the target.
+     */
+    protected updateCurrentPosition(position: number) {
+        const target = Number(this.targetPosition?.value);
+        if (!Number.isNaN(target) && position !== target && Math.abs(position - target) <= RollerShutter.POSITION_TOLERANCE) {
+            this.debug(`Reported position ${position}% shown as target ${target}% (within ${RollerShutter.POSITION_TOLERANCE}%)`);
+            position = target;
+        }
+        this.currentPosition?.updateValue(position);
+    }
+
     protected onStateChanged(name: string, value) {
         switch (name) {
             case 'core:ClosureState':
-                this.currentPosition?.updateValue(this.reversedValue(value));
+                this.updateCurrentPosition(this.reversedValue(value));
                 if (!this.device.hasState('core:TargetClosureState') && this.isIdle) {
                     this.targetPosition?.updateValue(this.reversedValue(value));
                 }
@@ -200,7 +216,7 @@ export default class RollerShutter extends Mapper {
             case 'core:TargetClosureState':
                 this.targetPosition?.updateValue(this.reversedValue(value));
                 if (!this.device.hasState('core:ClosureState')) {
-                    this.currentPosition?.updateValue(this.reversedValue(value));
+                    this.updateCurrentPosition(this.reversedValue(value));
                 }
                 break;
         }

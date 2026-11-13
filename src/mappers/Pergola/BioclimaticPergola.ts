@@ -9,7 +9,7 @@ export default class BioclimaticPergola extends Pergola {
     protected onStateChanged(name, value) {
         switch(name) {
             case 'core:SlatsOrientationState':
-                this.currentPosition?.updateValue(this.reversedValue(value));
+                this.updateCurrentPosition(this.reversedValue(value));
                 if(this.isIdle) {
                     this.targetPosition?.updateValue(this.reversedValue(value));
                 }
