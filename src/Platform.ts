@@ -6,7 +6,7 @@ import Mapper from './Mapper.js';
 import SceneMapper from './SceneMapper.js';
 import { CustomCharacteristics } from './CustomCharacteristics.js';
 import { BLUE, GREY, RESET } from './colors.js';
-import { hapName } from './hapName.js';
+import { hapName, isDefaultLabel, isDefaultName } from './hapName.js';
 
 
 export let Services: typeof Service;
@@ -142,7 +142,13 @@ export class Platform implements DynamicPlatformPlugin {
 
                 if (accessory) {
                     // the accessory already exists: fix a cached name that HomeKit does not accept
-                    this.renameCachedAccessory(accessory, hapName(device.label), renamed);
+                    if (isDefaultLabel(device.label) && !isDefaultName(accessory.displayName)) {
+                        // The gateway reports its default name (e.g. after a restart, before the names from the
+                        // TaHoma app are synchronised again): keep the name we already have
+                        this.log.debug(`Gateway reports default name '${device.label}' for '${accessory.displayName}', keeping it`);
+                    } else {
+                        this.renameCachedAccessory(accessory, hapName(device.label), renamed);
+                    }
                 } else {
                     // the accessory does not yet exist, so we need to create it
                     this.log.info('Create accessory:', device.label);

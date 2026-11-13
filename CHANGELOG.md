@@ -1,3 +1,8 @@
+## 2.3.7 (2026-11-13)
+
+* Requires `@tplnet/overkiz-client` ^1.3.2: no wrong `TIMED_OUT` 2 minutes after a successful command with the local API; the device is no longer considered busy after completion, so state changes (remote, TaHoma app) show up right away
+* Names: when the gateway reports its default name for a known device (e.g. "IO (5978041)" after a gateway restart, before the names from the TaHoma app are synchronised again), the current name is kept. Real renames in the TaHoma app are still taken over; service names follow the accessory name
+
 ## 2.3.6 (2026-11-13)
 
 * Requires `@tplnet/overkiz-client` ^1.3.1: faster reconnect after a gateway outage (last known IP address), clearer log messages, expected `400 No registered event listener` after a gateway restart handled as info

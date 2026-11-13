@@ -2,7 +2,7 @@
   "name": "@tplnet/homebridge-tahoma",
   "displayName": "Homebridge Somfy TaHoma (tplnet)",
   "type": "module",
-  "version": "2.3.6",
+  "version": "2.3.7",
   "description": "Homebridge plugin for TaHoma and Cozytouch services (Somfy, Atlantic, Thermor, Sauter). Maintained fork of dubocr/homebridge-tahoma.",
   "author": "Romain DUBOC <dubocr@gmail.com>",
   "license": "Apache-2.0",
@@ -35,7 +35,7 @@
   ],
   "homepage": "https://github.com/tplnet/homebridge-tahoma#readme",
   "dependencies": {
-    "overkiz-client": "npm:@tplnet/overkiz-client@^1.3.1"
+    "overkiz-client": "npm:@tplnet/overkiz-client@^1.3.2"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

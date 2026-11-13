@@ -21,3 +21,19 @@ export function hapName(label: string | undefined, fallback = 'Accessory'): stri
         .trim();
     return name || fallback;
 }
+
+/**
+ * Default name the gateway uses for a device without a name of its own, e.g. "IO (5978041)" or "RTS (123456)".
+ * The local API may report it for a while after a gateway restart, before the names from the TaHoma app
+ * (cloud) are synchronised again.
+ */
+const DEFAULT_LABEL = /^[A-Za-z]+ \(\d{4,}\)$/;
+const DEFAULT_NAME = /^[A-Za-z]+ \(?\d{4,}\)?$/;
+
+export function isDefaultLabel(label: string | undefined): boolean {
+    return DEFAULT_LABEL.test((label ?? '').trim());
+}
+
+export function isDefaultName(name: string | undefined): boolean {
+    return DEFAULT_NAME.test((name ?? '').trim());
+}

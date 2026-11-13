@@ -54,7 +54,8 @@ export default abstract class Mapper {
 
         const info = this.accessory.getService(Services.AccessoryInformation);
         if (info) {
-            info.setCharacteristic(Characteristics.Name, hapName(this.device.label));
+            // The accessory name is already HomeKit compatible and kept when the gateway reports a default name
+            info.setCharacteristic(Characteristics.Name, this.accessory.displayName);
             info.setCharacteristic(Characteristics.Manufacturer, this.device.manufacturer);
             info.setCharacteristic(Characteristics.Model, this.device.model);
             info.setCharacteristic(Characteristics.SerialNumber, this.device.address.substring(0, 64));
@@ -95,7 +96,7 @@ export default abstract class Mapper {
 
     protected registerService(type: any, subtype?: string): Service {
         let service: Service;
-        const name = hapName(subtype ? this.translate(subtype) : this.device.label);
+        const name = subtype ? hapName(this.translate(subtype)) : this.accessory.displayName;
         if (subtype) {
             service = this.accessory.getServiceById(type, subtype) || this.accessory.addService(type, name, subtype);
         } else {
