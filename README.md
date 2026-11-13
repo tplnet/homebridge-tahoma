@@ -12,7 +12,7 @@ Control your **Somfy TaHoma** devices – roller shutters, blinds, awnings, gate
 Works with all **Overkiz** based platforms: Somfy TaHoma / TaHoma Switch / Connexoon, Atlantic / Thermor / Sauter **Cozytouch**, Hitachi Hi Kumo, Flexom and Rexel Energeasy – via the **local API** of your TaHoma gateway or via the manufacturer's cloud.
 
 > This is a maintained fork of [dubocr/homebridge-tahoma](https://github.com/dubocr/homebridge-tahoma) by Romain Duboc, using the forked API client [`@tplnet/overkiz-client`](https://github.com/tplnet/overkiz-client).
-> It is a **drop-in replacement**: the platform name stays `Tahoma`, so your configuration and HomeKit accessories are kept – see [Migrating](#migrating-from-homebridge-tahoma).
+> It is a **drop-in replacement**: the platform name stays `Tahoma`, so your configuration and your accessories in Apple Home are kept – see [Migrating](#migrating-from-homebridge-tahoma).
 > Changes compared to the original: [CHANGELOG.md](CHANGELOG.md).
 
 ## Contents
@@ -61,7 +61,7 @@ Then add the platform to your `config.json` (see [Configuration](#configuration)
 
 ## Migrating from homebridge-tahoma
 
-> **Important:** never have both plugins installed at the same time. Homebridge only hands the cached accessories over to the new plugin if exactly one plugin provides the `Tahoma` platform. With both installed it removes them as orphaned – and HomeKit loses the rooms, scenes and automations of these accessories.
+> **Important:** never have both plugins installed at the same time. Homebridge only hands the cached accessories over to the new plugin if exactly one plugin provides the `Tahoma` platform. With both installed it removes them as orphaned – and Apple Home loses the rooms, scenes and automations of these accessories.
 
 1. Back up Homebridge (Homebridge UI → *Settings* → *Backup*).
 2. **First** uninstall `homebridge-tahoma`, **then** install `@tplnet/homebridge-tahoma`.
@@ -115,7 +115,7 @@ Then add the platform to your `config.json` (see [Configuration](#configuration)
 | `refreshPeriod` | number (min) | `30` local / `1440` cloud | Periodic full state refresh, needed for RTS devices and physical remotes that do not report their state. `0` disables it. The Somfy cloud allows only one refresh per day – lower values cause `429 QUOTA_EXCEEDED` |
 | `tlsInsecure` | boolean | `false` | Local API only: skip the gateway certificate check (by default verified against the [Overkiz root CA](https://ca.overkiz.com/overkiz-root-ca-2048.crt)). Use only if the connection fails with a certificate error |
 | `exclude` | string[] | `[]` | Devices to hide: device name, widget, UI class or protocol (e.g. `"rts"`, `"Main door"`, `"PositionableHorizontalAwning"`) |
-| `exposeScenarios` | boolean / string[] | `false` | Cloud only: expose TaHoma scenarios as HomeKit switches; `true` for all or a list of scenario names |
+| `exposeScenarios` | boolean / string[] | `false` | Cloud only: expose TaHoma scenarios as switches in Apple Home; `true` for all or a list of scenario names |
 | `devicesConfig` | object[] | `[]` | Per-device settings, see [below](#device-specific-configuration) |
 | `debug` | boolean | `false` | Verbose log output |
 
@@ -133,7 +133,7 @@ The local API talks directly to your gateway in your home network: no cloud acco
 
 The gateway is found in your network by its PIN (mDNS). If Homebridge runs in another network or VLAN, use the gateway's IP address as `user` (preferably with a fixed DHCP lease).
 
-> **Note:** cloud and local API use different device identifiers. Switching an existing setup from cloud to local makes HomeKit see all accessories as new ones – rooms and automations have to be set up again.
+> **Note:** cloud and local API use different device identifiers. Switching an existing setup from cloud to local makes Apple Home see all accessories as new ones – rooms and automations have to be set up again.
 
 More information: [Somfy TaHoma Developer Mode](https://github.com/Somfy-Developer/Somfy-TaHoma-Developer-Mode).
 

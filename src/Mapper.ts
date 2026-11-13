@@ -1,5 +1,5 @@
 import { Characteristics, Services } from './Platform.js';
-import { CharacteristicValue, HAPStatus, Logger, PlatformAccessory, Service } from 'homebridge';
+import type { CharacteristicValue, Logger, PlatformAccessory, Service } from 'homebridge';
 import { Device, State, Command, Action, ExecutionState } from 'overkiz-client';
 import { Platform } from './Platform.js';
 import { GREY } from './colors.js';
@@ -150,7 +150,7 @@ export default abstract class Mapper {
     protected async executeCommands(commands: Command | Array<Command> | undefined, standalone = false): Promise<Action> {
         if (commands === undefined || (Array.isArray(commands) && commands.length === 0)) {
             this.error('No target command for', this.device.label);
-            throw HAPStatus.RESOURCE_DOES_NOT_EXIST;
+            throw this.platform.api.hap.HAPStatus.RESOURCE_DOES_NOT_EXIST;
         } else if (Array.isArray(commands)) {
             for (const c of commands) {
                 this.info(c.name + JSON.stringify(c.parameters));
@@ -186,7 +186,7 @@ export default abstract class Mapper {
                         // Execution never started: no terminal event will release the slot.
                         release();
                         this.error(commandName + ' ' + error.message);
-                        reject(HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+                        reject(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
                     }
                     this.actionPromise = null;
                 }, 100);

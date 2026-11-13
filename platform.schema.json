@@ -14,7 +14,7 @@
         "type": "string",
         "required": true,
         "default": "TaHoma",
-        "description": "The name of this platform in HomeKit"
+        "description": "The name of this platform in Apple Home"
       },
       "service": {
         "title": "Service",
@@ -89,7 +89,7 @@
       "exposeScenarios": {
         "title": "Expose scenarios",
         "type": "boolean",
-        "description": "Expose scenarios as HomeKit switch to trigger them"
+        "description": "Expose scenarios as switches in Apple Home to trigger them"
       },
       "exclude": {
         "type": "array",

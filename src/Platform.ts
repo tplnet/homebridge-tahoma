@@ -234,7 +234,8 @@ export class Platform implements DynamicPlatformPlugin {
      */
     private renameCachedAccessory(accessory: PlatformAccessory, name: string, renamed: Array<PlatformAccessory>) {
         if (accessory.displayName !== name) {
-            this.log.info(`Rename accessory '${accessory.displayName}' to '${name}' (HomeKit naming rules)`);
+            // Either renamed in the TaHoma app or adjusted to the naming rules of Apple Home (see hapName)
+            this.log.info(`Rename accessory '${accessory.displayName}' to '${name}'`);
             accessory.updateDisplayName(name);
             renamed.push(accessory);
         }
@@ -246,12 +247,12 @@ export class Platform implements DynamicPlatformPlugin {
     public executeAction(label: string, action: Action, highPriority = false, standalone = false) {
         if (standalone) {
             // Run action in standalone execution
-            return this.client.execute(highPriority ? 'apply/highPriority' : 'apply', new Execution(label + ' - HomeKit', action));
+            return this.client.execute(highPriority ? 'apply/highPriority' : 'apply', new Execution(label + ' - Apple Home', action));
         } else {
             if (this.executionPromise) {
                 this.executionPromise.execution.addAction(action);
                 this.executionPromise.execution.label = 'Execute scene (' +
-                    this.executionPromise.execution.actions.length + ' devices) - HomeKit';
+                    this.executionPromise.execution.actions.length + ' devices) - Apple Home';
             } else {
                 this.executionPromise = new Promise((resolve, reject) => {
                     setTimeout(() => {
@@ -261,7 +262,7 @@ export class Platform implements DynamicPlatformPlugin {
                         this.executionPromise = null;
                     }, 100);
                 });
-                this.executionPromise.execution = new Execution(label + ' - HomeKit', action);
+                this.executionPromise.execution = new Execution(label + ' - Apple Home', action);
             }
             return this.executionPromise;
         }

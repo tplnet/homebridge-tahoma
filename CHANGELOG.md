@@ -1,3 +1,10 @@
+## 2.3.6 (2026-11-13)
+
+* Requires `@tplnet/overkiz-client` ^1.3.1: faster reconnect after a gateway outage (last known IP address), clearer log messages, expected `400 No registered event listener` after a gateway restart handled as info
+* Fix: `HAPStatus` is taken from the Homebridge API (`api.hap`) instead of importing the `homebridge` package at runtime – the plugin no longer depends on Homebridge's package being resolvable from the plugin directory
+* Log: "Rename accessory …" no longer claims the naming rules as reason (also shown for devices renamed in the TaHoma app)
+* Wording: "Apple Home" instead of "HomeKit" in README, settings and the execution label shown in the TaHoma app history (" - Apple Home")
+
 ## 2.3.5 (2026-11-12)
 
 * Fix: accessory and service names are made HomeKit compatible (must start and end with a letter or number), e.g. "Büro kl." → "Büro kl", "IO (6649146)" → "IO 6649146". Removes the HAP-NodeJS "invalid 'Name' characteristic" warnings; cached accessories are renamed once (log: "Rename accessory …"). Names in the TaHoma app are not changed
