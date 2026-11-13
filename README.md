@@ -2,6 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/@tplnet/homebridge-tahoma)](https://www.npmjs.com/package/@tplnet/homebridge-tahoma)
 [![CI](https://github.com/tplnet/homebridge-tahoma/actions/workflows/ci.yml/badge.svg)](https://github.com/tplnet/homebridge-tahoma/actions/workflows/ci.yml)
+[![Compatibility & CVE check](https://github.com/tplnet/homebridge-tahoma/actions/workflows/compat.yml/badge.svg)](https://github.com/tplnet/homebridge-tahoma/actions/workflows/compat.yml)
 [![License](https://img.shields.io/npm/l/@tplnet/homebridge-tahoma)](LICENSE)
 
 Package: [`@tplnet/homebridge-tahoma`](https://www.npmjs.com/package/@tplnet/homebridge-tahoma)
@@ -24,6 +25,7 @@ Works with all **Overkiz** based platforms: Somfy TaHoma / TaHoma Switch / Conne
 - [Device specific configuration](#device-specific-configuration)
 - [Supported devices](#supported-devices)
 - [Troubleshooting](#troubleshooting)
+- [Compatibility and security](#compatibility-and-security)
 - [Contributing](#contributing)
 - [Releasing (maintainers)](#releasing-maintainers)
 - [License and credits](#license-and-credits)
@@ -203,6 +205,18 @@ A device type that is not supported shows up in the log as *"… not supported"*
 
 For a detailed log, set `"debug": true` and restart Homebridge.
 
+## Compatibility and security
+
+This plugin is kept compatible with the **newest Homebridge release** and free of **known vulnerabilities (CVEs)**:
+
+- **Weekly and on every dependency change** the [Compatibility & CVE check](https://github.com/tplnet/homebridge-tahoma/actions/workflows/compat.yml) workflow
+  - runs `npm audit` – any known vulnerability in the runtime dependencies fails the check,
+  - builds the plugin and starts it with **homebridge@latest** and **homebridge@beta** on Node.js 22, 24 and 26 (`npm run smoke`): the plugin must load, be accepted as compatible (`engines`) and initialise without errors.
+- **Every release** runs the same CVE and Homebridge checks before the version is staged on npm – a release with a known vulnerability or an incompatibility is not published.
+- **Dependabot** opens weekly pull requests for dependency and GitHub Actions updates.
+
+Found a security issue? Please report it privately via GitHub (*Security* → *Report a vulnerability*) instead of a public issue.
+
 ## Contributing
 
 Bug reports, device support requests and pull requests are welcome: <https://github.com/tplnet/homebridge-tahoma/issues>.
@@ -211,6 +225,8 @@ Please include the Homebridge log (with `"debug": true`) and the device's UI cla
 ## Releasing (maintainers)
 
 ```sh
+npm audit --omit=dev                                      # must report 0 vulnerabilities
+npm install --no-save homebridge@latest && npm run build && npm run smoke   # newest Homebridge
 npm version patch   # or minor / major – bumps package.json and creates the annotated tag vX.Y.Z
 git push --follow-tags
 ```

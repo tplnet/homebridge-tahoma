@@ -23,7 +23,8 @@
     "watch": "npm run build && npm link && nodemon",
     "clean": "rimraf ./dist",
     "build": "rimraf ./dist && tsc",
-    "prepublishOnly": "npm run lint && npm run build"
+    "prepublishOnly": "npm run lint && npm run build",
+    "smoke": "node scripts/homebridge-smoke.mjs"
   },
   "keywords": [
     "homebridge-plugin",

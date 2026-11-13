@@ -1,6 +1,9 @@
 # Ignore source code
 src
 
+# Maintainer scripts (smoke test)
+scripts
+
 # ------------- Defaults ------------- #
 
 # eslint
