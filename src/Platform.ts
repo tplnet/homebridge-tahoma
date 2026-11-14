@@ -59,7 +59,9 @@ export class Platform implements DynamicPlatformPlugin {
             'WeatherForecastSensor',
         );
         this.exposeScenarios = config.exposeScenarios;
-        config.devicesConfig?.forEach(x => this.devicesConfig[x.key] = x);
+        // Entries without a device name (e.g. an empty entry added by the settings form) apply to nothing: skip them
+        config.devicesConfig?.filter((x) => typeof x?.key === 'string' && x.key.trim() !== '')
+            .forEach((x) => this.devicesConfig[x.key.trim()] = x);
 
         const logger = Object.assign({}, log, {
             debug: (...args) => {

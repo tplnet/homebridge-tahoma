@@ -1,3 +1,7 @@
+## 2.3.9 (2026-11-14)
+
+* Fix: the settings form no longer shows "Config validation failed" because of the empty device-specific entry the form adds by itself – the device name of a `devicesConfig` entry is optional in the schema, entries without a device name are ignored by the plugin
+
 ## 2.3.8 (2026-11-13)
 
 * Fix: roller shutters, blinds and awnings no longer stay on "Closing…"/"Opening…" in Apple Home when the motor reports its end position slightly off (e.g. 98 % closed instead of 100 %). A reported position within 3 % of the target position is shown as the target

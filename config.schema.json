@@ -117,8 +117,7 @@
             "key": {
               "title": "Device name",
               "type": "string",
-              "required": true,
-              "description": "Device name, widget or uiClass type"
+              "description": "Device name, widget or uiClass type. Entries without a device name are ignored."
             },
             "blindMode": {
               "title": "Blind mode",
@@ -191,7 +190,7 @@
     {
       "type": "fieldset",
       "title": "What",
-      "description": "Select what kind of ressources to expose.",
+      "description": "Select what kind of resources to expose.",
       "expandable": true,
       "expanded": false,
       "items": [
