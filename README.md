@@ -26,6 +26,7 @@ Works with all **Overkiz** based platforms: Somfy TaHoma / TaHoma Switch / Conne
 - [Supported devices](#supported-devices)
 - [Troubleshooting](#troubleshooting)
 - [Compatibility and security](#compatibility-and-security)
+- [Privacy](#privacy)
 - [Contributing](#contributing)
 - [Releasing (maintainers)](#releasing-maintainers)
 - [License and credits](#license-and-credits)
@@ -216,6 +217,27 @@ This plugin is kept compatible with the **newest Homebridge release** and free o
 - **Dependabot** opens weekly pull requests for dependency and GitHub Actions updates. Each of them runs CI and the full compatibility & CVE check (Homebridge latest/beta, Node.js 22/24/26) – when all checks are green, the update can simply be merged.
 
 Found a security issue? Please report it privately via GitHub (*Security* → *Report a vulnerability*) instead of a public issue.
+
+## Privacy
+
+This plugin collects **no data about you** and contains **no telemetry, analytics or tracking**. It does not connect to the author or any other third party.
+
+Network connections depend on the selected `service`:
+
+| Service | Connections |
+|---|---|
+| `local` | Only to **your TaHoma gateway in your home network** (HTTPS, port 8443), plus an mDNS lookup in the local network when the gateway is configured by its PIN. **Nothing leaves your network.** |
+| Cloud services | Only to the servers of the selected service, e.g. `ha101-1.overkiz.com` for Somfy Europe; Cozytouch additionally uses `apis.groupe-atlantic.com` to log in. |
+| `proxy` option | All requests go to the proxy you configure – only if you set it. |
+
+What is stored or sent:
+
+- **Credentials** (gateway PIN/IP and token, or account e-mail and password) are kept in Homebridge's `config.json`, like for every Homebridge plugin. The plugin does not store them anywhere else and never writes the token or password to the log.
+- **Accessory cache**: Homebridge stores device names and IDs in its accessory cache.
+- **Log**: operational messages (commands, states, errors) go to the Homebridge log; with `"debug": true` also the requested gateway paths.
+- **Command label**: each command carries a label made of the device name, the command and *"Apple Home"*, shown in the history of the TaHoma app. With the local API it stays on your gateway; with a cloud service it is sent to that service.
+
+The package has no install scripts, and its runtime dependencies do not send data anywhere either.
 
 ## Contributing
 
