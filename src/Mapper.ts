@@ -73,16 +73,15 @@ export default abstract class Mapper {
             this.onStatesChanged(this.device.states, true);
             this.device.on('states', states => this.onStatesChanged(states));
 
-            // Init and register sensors states changes
+            // Sensors attached to this device (temperature, energy consumption) are not exposed
+            // as accessories or services of their own: their states are forwarded to this mapper,
+            // which shows them on its main service (e.g. CurrentTemperature, TotalConsumption).
+            // A separate sensor mapper would duplicate these values in HomeKit.
             this.device.sensors.forEach((sensor) => {
                 this.onStatesChanged(sensor.states, true);
                 sensor.on('states', states => this.onStatesChanged(states));
             });
         }
-
-        // TODO: instanciate mapper for device sensors
-        // Configure accessory sensors
-        // this.device.sensors.forEach((sensor) => new mapper(platform, accessory, sensor)))
     }
 
     /**
