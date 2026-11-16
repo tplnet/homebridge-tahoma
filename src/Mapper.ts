@@ -14,6 +14,7 @@ export default abstract class Mapper {
     private postponeTimer;
     private debounceTimer;
     protected stateless = false;
+    protected deviceDebug = false;
     //protected config: Record<string, string | boolean | number> = {};
     private executionId;
     private actionPromise;
@@ -40,7 +41,11 @@ export default abstract class Mapper {
         );
         this.stateless = this.device.states.length === 0 ||
             (this.expectedStates.length > 0 && !this.expectedStates.some((state) => this.device.hasState(state)));
+        this.deviceDebug = config.debug === true;
         this.applyConfig(config);
+        if (this.deviceDebug) {
+            this.logDeviceDetails();
+        }
         if (Object.keys(config).length > 0) {
             delete config.key;
             if (this.platform.config.debug) {
@@ -241,8 +246,29 @@ export default abstract class Mapper {
      * Logging methods
      */
 
+    /**
+     * Logs what the gateway knows about this device (enabled with `debug: true` in the device specific config):
+     * commands with their number of parameters, current states and attached sensors.
+     */
+    private logDeviceDetails() {
+        const commands = (this.device.definition.commands ?? [])
+            .map((command) => `${command.commandName}(${command.nparams ?? 0})`)
+            .join(', ');
+        const states = (this.device.states ?? [])
+            .map((state) => `${state.name}=${JSON.stringify(state.value)}`)
+            .join(', ');
+        this.info(`Device details: ${this.device.definition.uiClass} > ${this.device.definition.widgetName},`,
+            `controllable ${this.device.controllableName}, protocol ${this.device.protocol}`);
+        this.info(`Commands: ${commands || 'none'}`);
+        this.info(`States: ${states || 'none'}`);
+        for (const sensor of this.device.sensors ?? []) {
+            const sensorStates = (sensor.states ?? []).map((state) => `${state.name}=${JSON.stringify(state.value)}`).join(', ');
+            this.info(`Sensor ${sensor.definition.widgetName}: ${sensorStates || 'no states'}`);
+        }
+    }
+
     protected debug(...args) {
-        if (this.platform.config.debug) {
+        if (this.platform.config.debug || this.deviceDebug) {
             this.platform.log.info(`${GREY}[${this.device.label}]`, ...args);
         } else {
             this.platform.log.debug(`[${this.device.label}]`, ...args);

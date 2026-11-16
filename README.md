@@ -165,6 +165,12 @@ More information: [Somfy TaHoma Developer Mode](https://github.com/Somfy-Develop
 | `blindsOnRollerShutter` | boolean | `false` | Blinds mounted on roller shutter motors: keep the slats horizontal (open) at intermediate positions |
 | `movementDuration` | number (s) | `0` | Duration of a full movement from open to closed; used to estimate intermediate positions (`0` = off) |
 
+### All devices
+
+| Setting | Type | Default | Description |
+|---|---|---|---|
+| `debug` | boolean | `false` | Troubleshooting: logs at startup which commands and states the gateway offers for this device, and more details about its commands (without changing the global `debug`) |
+
 ### Garage doors and gates (GarageDoorOpener)
 
 | Setting | Type | Default | Description |
@@ -207,7 +213,7 @@ A device type that is not supported shows up in the log as *"… not supported"*
 | Changes made with a remote are not shown | RTS devices cannot report their state; keep `refreshPeriod` enabled |
 | Accessories disappeared after installing this plugin | Both plugins were installed at the same time – restore your backup and follow [Migrating](#migrating-from-homebridge-tahoma) |
 
-For a detailed log, set `"debug": true` and restart Homebridge.
+For a detailed log, set `"debug": true` and restart Homebridge. For a single device, add `"debug": true` to its entry in `devicesConfig` – the log then also shows the commands and states the gateway offers for it.
 
 ## Compatibility and security
 

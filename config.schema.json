@@ -176,6 +176,11 @@
               "title": "Night Zones",
               "type": "string",
               "description": "Zones to activate in Night mode"
+            },
+            "debug": {
+              "title": "Debug log",
+              "type": "boolean",
+              "description": "Log the commands and states this device offers, and more details about its commands (for troubleshooting)"
             }
           }
         }
@@ -256,6 +261,15 @@
                     "devicesConfig[].occupancySensor",
                     "devicesConfig[].stayZones",
                     "devicesConfig[].nightZones"
+                  ]
+                },
+                {
+                  "title": "Troubleshooting",
+                  "type": "section",
+                  "expandable": true,
+                  "expanded": false,
+                  "items": [
+                    "devicesConfig[].debug"
                   ]
                 }
               ]

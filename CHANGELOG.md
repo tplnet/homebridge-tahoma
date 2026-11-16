@@ -1,3 +1,9 @@
+## 2.4.0 (2026-11-16)
+
+### Added
+
+- Troubleshooting for a single device: with `"debug": true` in its device specific settings (settings form: *Device specific config* → *Troubleshooting*), the log shows at startup which commands and states the gateway offers for this device, plus the detailed log of its commands. Helps to find out why a device does not report changes (e.g. a garage door operated with its remote)
+
 ## 2.3.10 (2026-11-16)
 
 ### Fixed
