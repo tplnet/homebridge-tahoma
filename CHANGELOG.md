@@ -1,3 +1,9 @@
+## 2.3.10 (2026-11-16)
+
+### Fixed
+
+- Log after Apple Home scenes: no more "setClosure undefined" lines for every device. Requires `@tplnet/overkiz-client` ^1.3.3, which marks only the devices that really failed. A failure is now logged as "FAILED:" with the reason from the gateway; without a reason, the gateway's message is logged, so the cause is visible
+
 ## 2.3.9 (2026-11-14)
 
 * Fix: the settings form no longer shows "Config validation failed" because of the empty device-specific entry the form adds by itself – the device name of a `devicesConfig` entry is optional in the schema, entries without a device name are ignored by the plugin

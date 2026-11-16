@@ -206,7 +206,12 @@ export default abstract class Mapper {
             this.actionPromise.action = action;
             action.on('update', (state, event) => {
                 if (state === ExecutionState.FAILED) {
-                    this.error(commandName, event?.failureType);
+                    // Reason sent by the gateway; without one, log the raw event to make the cause visible
+                    const reason = event?.failureType ?? event?.failureTypeCode ??
+                        (event ? JSON.stringify(event) : 'no reason given by the gateway');
+                    this.error(commandName, 'FAILED:', reason);
+                } else if (!state) {
+                    this.debug(commandName, 'update without state', event ? JSON.stringify(event) : '');
                 } else if (state === ExecutionState.COMPLETED) {
                     this.info(commandName, state);
                 } else if (state === ExecutionState.TIMED_OUT || state === ExecutionState.NOT_TRANSMITTED) {
