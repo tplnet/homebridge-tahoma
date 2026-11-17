@@ -37,6 +37,8 @@ export default abstract class Mapper {
             this.platform.devicesConfig[this.device.definition.uiClass],
             this.platform.devicesConfig[this.device.definition.widgetName],
             this.platform.devicesConfig[this.device.label],
+            // name shown in Apple Home and in the log ("Configure device ..."), may differ slightly from the TaHoma app
+            this.platform.devicesConfig[this.accessory.displayName],
             this.platform.devicesConfig[this.device.uuid],
         );
         this.stateless = this.device.states.length === 0 ||

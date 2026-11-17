@@ -1,3 +1,16 @@
+## 2.4.1 (2026-11-17)
+
+### Changed
+
+- Settings form, *Device specific config*: explains what it is for and which device name to enter (as shown in the log at startup: "Configure device <name>"). The options are grouped by device kind, each with a description of what it does and for which devices it is meant. New in the form: start delay for the movement duration, pedestrian opening for gates and the heating options
+- README: section "Device specific configuration" rewritten accordingly
+
+### Fixed
+
+- A device specific entry now also matches the device name shown in Apple Home and in the log. Before, only the name from the TaHoma app worked, which can differ slightly (e.g. "Büro kl." in the TaHoma app, "Büro kl" in Apple Home)
+- Removed the alarm option "occupancy sensor" from the settings and the README – it had no effect
+- "Reverse direction" is no longer offered for garage doors – it only works for roller shutters and similar devices
+
 ## 2.4.0 (2026-11-16)
 
 ### Added

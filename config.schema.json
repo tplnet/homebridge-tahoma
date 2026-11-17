@@ -115,72 +115,96 @@
           "type": "object",
           "properties": {
             "key": {
-              "title": "Device name",
+              "title": "Device name or type",
               "type": "string",
-              "description": "Device name, widget or uiClass type. Entries without a device name are ignored."
+              "description": "Which device(s) the settings apply to: the device name as shown in the Homebridge log at startup (\"Configure device <name>\") or in the TaHoma app – or a device type from the line below it (e.g. \"RollerShutter\" for all roller shutters, \"PositionableGarageDoor\" for one model). Entries without a name are ignored."
+            },
+            "reverse": {
+              "title": "Reverse direction",
+              "type": "boolean",
+              "description": "Swap open and close, e.g. after a wrong installation."
+            },
+            "defaultPosition": {
+              "title": "Position after a command",
+              "type": "number",
+              "minimum": 0,
+              "maximum": 100,
+              "description": "Only for devices without position feedback (RTS, up/down only): position shown in Apple Home after a command, e.g. 50."
+            },
+            "movementDuration": {
+              "title": "Movement duration (s)",
+              "type": "integer",
+              "minimum": 0,
+              "description": "Only for devices without position feedback (RTS): time for a full movement from open to closed. Enables intermediate positions – the plugin stops the device after the calculated time. 0 = off."
+            },
+            "offsetMovementDuration": {
+              "title": "Start delay (s)",
+              "type": "integer",
+              "minimum": 0,
+              "description": "Used with the movement duration: extra time until the device actually starts moving."
+            },
+            "lowSpeed": {
+              "title": "Low speed",
+              "type": "boolean",
+              "description": "Only for roller shutters with low speed (widget PositionableRollerShutterWithLowSpeedManagement): always move with the silent low speed. A time slot such as \"22:00-07:00\" can be set in the JSON config."
             },
             "blindMode": {
               "title": "Blind mode",
               "type": "boolean",
-              "description": "Manage blind orientation with main slider"
+              "description": "Only for venetian / exterior blinds: the main slider controls the slats – 100 % fully open, 0 % fully closed, 1–99 % closed with tilted slats."
             },
             "blindsOnRollerShutter": {
-              "title": "Blinds on roller shutter",
+              "title": "Blinds on roller shutter motor",
               "type": "boolean",
-              "description": "Manage blinds installed on roller shutter motors"
-            },
-            "reverse": {
-              "title": "Reverse",
-              "type": "boolean",
-              "description": "Reverse behaviour for open/close commands"
-            },
-            "lowSpeed": {
-              "title": "Low speed mode",
-              "type": "boolean",
-              "description": "Low speed for supported roller shutter"
-            },
-            "defaultPosition": {
-              "title": "Default position",
-              "type": "number",
-              "minimum": 0,
-              "maximum": 100,
-              "description": "Restore specific default position for stateless covering"
-            },
-            "movementDuration": {
-              "title": "Movement Duration",
-              "type": "integer",
-              "minimum": 0,
-              "description": "Duration from 'opened' to 'closed' position to estimate intermediate positions"
+              "description": "Only for blinds driven by a roller shutter motor: at intermediate positions the blind moves a little further back to open the slats."
             },
             "cyclic": {
-              "title": "Cyclic",
+              "title": "Cyclic door",
               "type": "boolean",
-              "description": "Emulate cyclic door"
+              "description": "Only for garage doors and gates without state feedback that close by themselves: show \"closed\" again after the cycle duration."
             },
             "cycleDuration": {
-              "title": "Cycle Duration",
+              "title": "Cycle duration (s)",
               "type": "integer",
-              "description": "Cycle duration if cyclic mode enabled"
+              "minimum": 1,
+              "description": "Used with \"Cyclic door\": time until the door is shown as closed again. Default 5."
             },
-            "occupancySensor": {
-              "title": "Occupancy sensor",
-              "type": "boolean",
-              "description": "Expose an occupancy sensor, active when alarm trigered"
+            "pedestrianDuration": {
+              "title": "Pedestrian opening (s)",
+              "type": "integer",
+              "minimum": 0,
+              "description": "Only for gates without a pedestrian command (RTS): open for this time, then stop. Shown as an extra lock in Apple Home."
             },
             "stayZones": {
-              "title": "Stay Zones",
+              "title": "Zones for \"Home\"",
               "type": "string",
-              "description": "Zones to activate in Presence mode"
+              "description": "Only for alarm systems: zones armed in Apple Home's \"Home\" mode, e.g. \"A\" or \"A,C\". Default A."
             },
             "nightZones": {
-              "title": "Night Zones",
+              "title": "Zones for \"Night\"",
               "type": "string",
-              "description": "Zones to activate in Night mode"
+              "description": "Only for alarm systems: zones armed in Apple Home's \"Night\" mode. Default B."
+            },
+            "derogationDuration": {
+              "title": "Temporary order duration (h)",
+              "type": "number",
+              "minimum": 1,
+              "description": "Only for Atlantic / Thermor heating zones: duration of temporary temperature changes. Default 1."
+            },
+            "comfort": {
+              "title": "Comfort temperature (°C)",
+              "type": "number",
+              "description": "Only for electrical heaters with pilot wire: temperature that stands for the comfort mode. Default 19."
+            },
+            "eco": {
+              "title": "Eco temperature (°C)",
+              "type": "number",
+              "description": "Only for electrical heaters with pilot wire: temperature that stands for the eco mode. Default 17."
             },
             "debug": {
               "title": "Debug log",
               "type": "boolean",
-              "description": "Log the commands and states this device offers, and more details about its commands (for troubleshooting)"
+              "description": "For all devices: log at startup which commands and states the gateway offers for this device, and more details about its commands (for troubleshooting)."
             }
           }
         }
@@ -215,7 +239,7 @@
     {
       "type": "fieldset",
       "title": "Device specific config",
-      "description": "Apply specific config for some devices or kind of devices.",
+      "description": "Optional settings for single devices or device types. Most devices need none. Add an entry, enter the device name (as shown in the Homebridge log at startup: \"Configure device <name>\") or a device type, and set only the options of the section that matches the device – the other sections have no effect on it.",
       "expandable": true,
       "expanded": false,
       "items": [
@@ -228,43 +252,70 @@
               "items": [
                 "devicesConfig[].key",
                 {
-                  "title": "Window Covering",
+                  "title": "Roller shutters, awnings, screens, windows, curtains",
                   "type": "section",
                   "expandable": true,
                   "expanded": false,
                   "items": [
                     "devicesConfig[].reverse",
                     "devicesConfig[].defaultPosition",
+                    "devicesConfig[].movementDuration",
+                    "devicesConfig[].offsetMovementDuration"
+                  ]
+                },
+                {
+                  "title": "Roller shutters with low speed",
+                  "type": "section",
+                  "expandable": true,
+                  "expanded": false,
+                  "items": [
+                    "devicesConfig[].lowSpeed"
+                  ]
+                },
+                {
+                  "title": "Venetian and exterior blinds",
+                  "type": "section",
+                  "expandable": true,
+                  "expanded": false,
+                  "items": [
                     "devicesConfig[].blindMode",
-                    "devicesConfig[].lowSpeed",
-                    "devicesConfig[].blindsOnRollerShutter",
-                    "devicesConfig[].movementDuration"
+                    "devicesConfig[].blindsOnRollerShutter"
                   ]
                 },
                 {
-                  "title": "Garage Door",
+                  "title": "Garage doors and gates",
                   "type": "section",
                   "expandable": true,
                   "expanded": false,
                   "items": [
-                    "devicesConfig[].reverse",
                     "devicesConfig[].cyclic",
-                    "devicesConfig[].cycleDuration"
+                    "devicesConfig[].cycleDuration",
+                    "devicesConfig[].pedestrianDuration"
                   ]
                 },
                 {
-                  "title": "Alarm",
+                  "title": "Alarm systems",
                   "type": "section",
                   "expandable": true,
                   "expanded": false,
                   "items": [
-                    "devicesConfig[].occupancySensor",
                     "devicesConfig[].stayZones",
                     "devicesConfig[].nightZones"
                   ]
                 },
                 {
-                  "title": "Troubleshooting",
+                  "title": "Heating",
+                  "type": "section",
+                  "expandable": true,
+                  "expanded": false,
+                  "items": [
+                    "devicesConfig[].derogationDuration",
+                    "devicesConfig[].comfort",
+                    "devicesConfig[].eco"
+                  ]
+                },
+                {
+                  "title": "Troubleshooting (all devices)",
                   "type": "section",
                   "expandable": true,
                   "expanded": false,
