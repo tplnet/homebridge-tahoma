@@ -24,12 +24,11 @@ Works with all **Overkiz** based platforms: Somfy TaHoma / TaHoma Switch / Conne
 - [Migrating from homebridge-tahoma](#migrating-from-homebridge-tahoma)
 - [Configuration](#configuration)
 - [Local API (recommended)](#local-api-recommended)
-- [Several gateways or accounts](#several-gateways-or-accounts)
-- [Device specific configuration](#device-specific-configuration)
 - [Supported devices](#supported-devices)
 - [Troubleshooting](#troubleshooting)
 - [Compatibility and security](#compatibility-and-security)
 - [Privacy](#privacy)
+- [Documentation](#documentation)
 - [Contributing](#contributing)
 - [Releasing (maintainers)](#releasing-maintainers)
 - [Disclaimer](#disclaimer)
@@ -109,20 +108,9 @@ Then add the platform to your `config.json` (see [Configuration](#configuration)
 }
 ```
 
-### All options
+### More options
 
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `service` | string | `somfy_europe` | Service, see [Requirements](#requirements) |
-| `user` | string | – | **Required.** Local: gateway PIN or IPv4 address. Cloud: account e-mail |
-| `password` | string | – | **Required.** Local: API token. Cloud: account password |
-| `pollingPeriod` | number (s) | `5` local / `60` cloud | Update interval: how often the plugin asks the gateway for changes made elsewhere (TaHoma app, remote, other systems). Cloud: at least 10, at most 60 |
-| `refreshPeriod` | number (min) | `30` local / `1440` cloud | Full refresh interval, in case a change was missed. Local API: re-reads the states the gateway knows. Cloud: asks the gateway to query the devices – allowed only once a day, lower values cause `429 QUOTA_EXCEEDED`. `0` disables it. Devices without feedback (RTS) cannot report their state either way |
-| `tlsInsecure` | boolean | `false` | Local API only: skip the gateway certificate check (by default verified against the [Overkiz root CA](https://ca.overkiz.com/overkiz-root-ca-2048.crt)). Use only if the connection fails with a certificate error |
-| `exclude` | string[] | `[]` | Devices and scenarios to hide: name as shown in the log at startup ("Configure device <name>") or in the TaHoma app, a type from the line below it (UI class or widget, e.g. `"PositionableHorizontalAwning"`) or a radio protocol (`"io"`, `"rts"`). A hidden device is removed from Apple Home, including its room and automations |
-| `exposeScenarios` | boolean / string[] | `false` | Cloud only (the local API offers no scenarios): show TaHoma scenarios as switches in Apple Home. `true` for all, or a list of scenario names for only these (JSON config) |
-| `devicesConfig` | object[] | `[]` | Per-device settings, see [below](#device-specific-configuration) |
-| `debug` | boolean | `false` | Detailed log for all devices (commands, states, requests to the gateway) – for troubleshooting. For a single device see [`devicesConfig`](#all-devices) |
+The most important options are `service`, `user` and `password`. All other options – update intervals, hidden devices, scenarios, settings for single devices, several gateways – are described in **[docs/configuration.md](https://github.com/tplnet/homebridge-tahoma/blob/master/docs/configuration.md)**. The settings form of the Homebridge UI explains them as well.
 
 ## Local API (recommended)
 
@@ -142,89 +130,6 @@ The gateway is found in your network by its PIN (mDNS). If Homebridge runs in an
 
 More information: [Somfy TaHoma Developer Mode](https://github.com/Somfy-Developer/Somfy-TaHoma-Developer-Mode).
 
-## Several gateways or accounts
-
-One configuration covers one gateway or cloud account. In the settings form, **+** at the bottom adds another configuration – only needed for a second gateway or an additional cloud account (e.g. Cozytouch next to Somfy).
-
-- Never add the same gateway twice.
-- Give each configuration its own `name`.
-- Run each configuration as a separate **child bridge** (Homebridge settings → *Bridges*). Homebridge does not load the same platform twice in one bridge – it reports that the platform "is configured multiple times".
-
-## Device specific configuration
-
-Most devices work without any extra settings. `devicesConfig` (settings form: *Device specific config*) is only needed to adapt single devices or device types – for example a roller shutter installed the wrong way round, or an RTS shutter without position feedback.
-
-### Which name to enter (`key`)
-
-Each entry applies to the devices matching its `key`:
-
-- **A device name** – as shown in the Homebridge log at startup, or as named in the TaHoma app:
-  ```
-  [TaHoma] Configure device Garage
-  [TaHoma]   GarageDoor > PositionableGarageDoor
-  ```
-  Here the name is `Garage`.
-- **A device type** – the words in the line below the name: the first one (UI class, e.g. `RollerShutter`, `Awning`, `GarageDoor`) applies to all devices of this kind, the second one (widget, e.g. `PositionableGarageDoor`) to all devices of this model.
-
-When several entries match a device, their settings are combined; the more specific one wins (device name over widget over UI class).
-
-```json
-"devicesConfig": [
-    { "key": "Bedroom blind", "blindMode": true },
-    { "key": "UpDownRollerShutter", "defaultPosition": 50 },
-    { "key": "Garage", "debug": true },
-    { "key": "Alarm", "stayZones": "A,C" }
-]
-```
-
-Only the settings of the section that matches the device have an effect; the others are ignored for it. In the settings form, the sections are named after the device kinds.
-
-### Roller shutters, awnings, screens, windows, curtains (WindowCovering)
-
-| Setting | Type | Default | Description |
-|---|---|---|---|
-| `reverse` | boolean | `false` | Swap open and close (e.g. after a wrong installation) |
-| `defaultPosition` | number | `0` | Only for devices without position feedback (RTS, up/down only): position shown after a command, e.g. `50` |
-| `movementDuration` | number (s) | `0` | Only for devices without position feedback (RTS): time of a full movement from open to closed. Enables intermediate positions – the plugin stops the device after the calculated time (`0` = off) |
-| `offsetMovementDuration` | number (s) | `0` | Used with `movementDuration`: extra time until the device actually starts moving |
-| `lowSpeed` | boolean / string | `false` | Only for roller shutters with low speed (widget `PositionableRollerShutterWithLowSpeedManagement`): use the silent low speed. As string `"HH:MM-HH:MM"` only in that time slot (may span midnight, e.g. `"22:00-07:00"`; JSON config only) |
-
-### Venetian and exterior blinds
-
-| Setting | Type | Default | Description |
-|---|---|---|---|
-| `blindMode` | boolean | `false` | The main slider controls the slats: 100 % fully opens, 0 % fully closes, 1–99 % closes the blind and tilts the slats (99 % = horizontal, most light; 1 % = nearly closed) |
-| `blindsOnRollerShutter` | boolean | `false` | Blinds driven by a roller shutter motor: at intermediate positions the blind moves a little further back so the slats stay open |
-
-### Garage doors and gates (GarageDoorOpener)
-
-| Setting | Type | Default | Description |
-|---|---|---|---|
-| `cyclic` | boolean | `false` | For doors without state feedback that close by themselves: show *closed* again after `cycleDuration` |
-| `cycleDuration` | number (s) | `5` | Time until a cyclic door is shown as closed again |
-| `pedestrianDuration` | number (s) | `0` | Gates without a pedestrian command (RTS): open for this time, then stop. Shown as an extra lock in Apple Home |
-
-### Alarm systems
-
-| Setting | Type | Default | Description |
-|---|---|---|---|
-| `stayZones` | string | `A` | Zones (A, B, C) armed in Apple Home's *Home* mode, e.g. `"A,C"` |
-| `nightZones` | string | `B` | Zones (A, B, C) armed in Apple Home's *Night* mode |
-
-### Heating
-
-| Setting | Type | Default | Description |
-|---|---|---|---|
-| `derogationDuration` | number (h) | `1` | Atlantic / Thermor heating zones: duration of temporary temperature changes |
-| `comfort` | number (°C) | `19` | Electrical heaters with pilot wire: temperature that stands for the comfort mode |
-| `eco` | number (°C) | `17` | Electrical heaters with pilot wire: temperature that stands for the eco mode |
-
-### All devices
-
-| Setting | Type | Default | Description |
-|---|---|---|---|
-| `debug` | boolean | `false` | Troubleshooting: logs at startup which commands and states the gateway offers for this device, and more details about its commands (without changing the global `debug`) |
-
 ## Supported devices
 
 Roller shutters, exterior and interior venetian blinds, adjustable slats, awnings, pergolas, screens, curtains, swinging shutters, windows and window handles, garage doors and gates, door locks, lights and on/off switches, sirens and alarms, heating systems (Atlantic, Somfy thermostat, EvoHome, Hitachi), water heaters, ventilation, and sensors for temperature, humidity, light, air quality, smoke, water, rain, contact, occupancy and electricity consumption.
@@ -233,16 +138,7 @@ A device type that is not supported shows up in the log as *"… not supported"*
 
 ## Troubleshooting
 
-| Problem | What to do |
-|---|---|
-| `No gateway found on your network` | Check that Developer Mode is enabled and that Homebridge is in the same network as the gateway. Otherwise use the gateway's IP address as `user` |
-| Certificate error with the local API | Set `"tlsInsecure": true` and please open an issue with the error message |
-| `401` with the local API | The token was revoked or mistyped – generate a new one in the TaHoma app |
-| `429 QUOTA_EXCEEDED` (cloud) | Increase `refreshPeriod` (default 1440) or set it to `0` – or switch to the [local API](#local-api-recommended) |
-| Changes made with a remote are not shown | RTS devices cannot report their state at all. io devices normally report within seconds; if the TaHoma app shows the old state too, the gateway missed the report – it is updated with the next report or when the device is opened in the TaHoma app |
-| Accessories disappeared after installing this plugin | Both plugins were installed at the same time – restore your backup and follow [Migrating](#migrating-from-homebridge-tahoma) |
-
-For a detailed log, set `"debug": true` and restart Homebridge. For a single device, add `"debug": true` to its entry in `devicesConfig` – the log then also shows the commands and states the gateway offers for it.
+Common problems and what to do – gateway not found, certificate errors, `429 QUOTA_EXCEEDED`, states not updated – are described in **[docs/troubleshooting.md](https://github.com/tplnet/homebridge-tahoma/blob/master/docs/troubleshooting.md)**. For a detailed log, set `"debug": true` and restart Homebridge.
 
 ## Compatibility and security
 
@@ -277,25 +173,20 @@ What is stored or sent:
 
 The package has no install scripts, and its runtime dependencies do not send data anywhere either.
 
+## Documentation
+
+- [Configuration](https://github.com/tplnet/homebridge-tahoma/blob/master/docs/configuration.md) – all options, several gateways or accounts, settings for single devices (with screenshots of the settings form)
+- [Troubleshooting](https://github.com/tplnet/homebridge-tahoma/blob/master/docs/troubleshooting.md) – common problems, debug log, reporting a problem
+- [Releasing](https://github.com/tplnet/homebridge-tahoma/blob/master/docs/releasing.md) – for maintainers
+- [Changelog](CHANGELOG.md)
+
 ## Contributing
 
-Bug reports, device support requests and pull requests are welcome: <https://github.com/tplnet/homebridge-tahoma/issues>.
-Please include the Homebridge log (with `"debug": true`) and the device's UI class and widget name shown in the log at startup.
+Bug reports, device support requests and pull requests are welcome: <https://github.com/tplnet/homebridge-tahoma/issues>. What to include: see [Reporting a problem](https://github.com/tplnet/homebridge-tahoma/blob/master/docs/troubleshooting.md#reporting-a-problem).
 
 ## Releasing (maintainers)
 
-```sh
-npm audit --omit=dev                                      # must report 0 vulnerabilities
-npm install --no-save homebridge@latest && npm run build && npm run smoke   # newest Homebridge
-npm version patch   # or minor / major – bumps package.json and creates the annotated tag vX.Y.Z
-git push --follow-tags
-```
-
-The `Publish to npm` workflow **stages** the version on npm via Trusted Publishing (stage-only permission) and creates a GitHub release.
-The version becomes public only after approval with 2FA/passkey: npmjs.com → package → *Staged Packages*, or `npm stage approve <stage-id>`
-(the id is shown in the workflow run summary and by `npm stage list <package>`).
-
-Release notes: before tagging, describe the changes in a `## X.Y.Z` section at the top of `CHANGELOG.md`. `npm version` refuses to run without it, and the workflow uses this section as the description of the GitHub release (and stops before publishing if it is missing). Start each entry with what changes for the user, technical details after it; with several entries, group them under `### Added`, `### Changed`, `### Fixed` and `### Security`. The release also lists what was checked before it went out (newest Homebridge release, no known vulnerabilities, tested Node.js versions). Pre-release versions (e.g. `1.4.0-beta.1`) are published under the npm tag `next` and marked as pre-release on GitHub. Existing releases can be (re)filled with *Actions* → *Release notes* → *Run workflow* (tag or `all`); the checks written by the publish run are kept.
+See [docs/releasing.md](https://github.com/tplnet/homebridge-tahoma/blob/master/docs/releasing.md).
 
 ## Disclaimer
 
