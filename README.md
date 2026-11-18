@@ -24,6 +24,7 @@ Works with all **Overkiz** based platforms: Somfy TaHoma / TaHoma Switch / Conne
 - [Migrating from homebridge-tahoma](#migrating-from-homebridge-tahoma)
 - [Configuration](#configuration)
 - [Local API (recommended)](#local-api-recommended)
+- [Several gateways or accounts](#several-gateways-or-accounts)
 - [Device specific configuration](#device-specific-configuration)
 - [Supported devices](#supported-devices)
 - [Troubleshooting](#troubleshooting)
@@ -140,6 +141,14 @@ The gateway is found in your network by its PIN (mDNS). If Homebridge runs in an
 > **Note:** cloud and local API use different device identifiers. Switching an existing setup from cloud to local makes Apple Home see all accessories as new ones – rooms and automations have to be set up again.
 
 More information: [Somfy TaHoma Developer Mode](https://github.com/Somfy-Developer/Somfy-TaHoma-Developer-Mode).
+
+## Several gateways or accounts
+
+One configuration covers one gateway or cloud account. In the settings form, **+** at the bottom adds another configuration – only needed for a second gateway or an additional cloud account (e.g. Cozytouch next to Somfy).
+
+- Never add the same gateway twice.
+- Give each configuration its own `name`.
+- Run each configuration as a separate **child bridge** (Homebridge settings → *Bridges*). Homebridge does not load the same platform twice in one bridge – it reports that the platform "is configured multiple times".
 
 ## Device specific configuration
 

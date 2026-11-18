@@ -1,3 +1,16 @@
+## 2.4.3 (2026-11-18)
+
+### Changed
+
+- Settings form: a note at the top explains the **+** button – one configuration per gateway or cloud account, another one only for a second gateway or account, each with its own name as a separate child bridge. Clearer descriptions for name, user / gateway and password / token
+- Settings form, *Device specific config*: each entry is a collapsed line named after its device (new entries: "New entry – enter a device name"), the button says "Add device or type" instead of "Add devices config"; shorter help text per entry
+- Settings form, hidden devices: button "Add device or scenario to hide"
+- README: new section "Several gateways or accounts"
+
+### Fixed
+
+- Settings form: the example "Configure device <name>" in the descriptions was shown as "Configure device " (the name in angle brackets was swallowed as HTML)
+
 ## 2.4.2 (2026-11-18)
 
 ### Changed

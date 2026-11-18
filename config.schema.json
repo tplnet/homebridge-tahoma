@@ -2,6 +2,7 @@
   "pluginAlias": "Tahoma",
   "pluginType": "platform",
   "singular": false,
+  "headerDisplay": "**Several gateways or accounts:** one configuration per TaHoma gateway or cloud account. With **+** (at the bottom) you add another one – only needed for a second gateway or an additional account (e.g. Cozytouch). Never add the same gateway twice. Give each configuration its own name and run each as a separate **child bridge** (Homebridge settings → Bridges): Homebridge does not load the same platform twice in one bridge.",
   "schema": {
     "type": "object",
     "properties": {
@@ -9,7 +10,8 @@
         "title": "Name",
         "type": "string",
         "required": true,
-        "default": "TaHoma"
+        "default": "TaHoma",
+        "description": "Shown in the Homebridge log. Must be unique if you use several configurations."
       },
       "service": {
         "title": "Service",
@@ -68,16 +70,16 @@
         "required": true
       },
       "user": {
-        "title": "User",
+        "title": "User / gateway",
         "type": "string",
         "required": true,
-        "description": "Your username for selected service (email, gateway Pin or IP)"
+        "description": "Local API: gateway PIN (XXXX-XXXX-XXXX) or IP address of the gateway. Cloud: e-mail address of your account."
       },
       "password": {
-        "title": "Password",
+        "title": "Password / token",
         "type": "string",
         "required": true,
-        "description": "Your password/token for selected service"
+        "description": "Local API: token generated in the TaHoma app (Developer Mode). Cloud: password of your account."
       },
       "exposeScenarios": {
         "title": "Scenarios as switches (cloud only)",
@@ -90,7 +92,7 @@
         "items": {
           "type": "string",
           "title": "Name or type",
-          "description": "Device or scenario name as shown in the Homebridge log at startup (\"Configure device <name>\") or in the TaHoma app – or a type from the line below it (e.g. \"PositionableHorizontalAwning\", \"Light\") or a radio protocol (\"io\", \"rts\")."
+          "description": "Device or scenario name as shown in the Homebridge log at startup (e.g. \"Garage\" from the line \"Configure device Garage\") or in the TaHoma app – or a type from the line below it (e.g. \"PositionableHorizontalAwning\", \"Light\") or a radio protocol (\"io\", \"rts\")."
         }
       },
       "pollingPeriod": {
@@ -125,7 +127,7 @@
             "key": {
               "title": "Device name or type",
               "type": "string",
-              "description": "Which device(s) the settings apply to: the device name as shown in the Homebridge log at startup (\"Configure device <name>\") or in the TaHoma app – or a device type from the line below it (e.g. \"RollerShutter\" for all roller shutters, \"PositionableGarageDoor\" for one model). Entries without a name are ignored."
+              "description": "Device name from the log (\"Configure device …\") or the TaHoma app, or a device type such as \"RollerShutter\"."
             },
             "reverse": {
               "title": "Reverse direction",
@@ -239,14 +241,15 @@
           "description": "One entry per device, scenario or type to hide.",
           "items": [
             "exclude[]"
-          ]
+          ],
+          "buttonText": "Add device or scenario to hide"
         }
       ]
     },
     {
       "type": "fieldset",
       "title": "Device specific config",
-      "description": "Optional settings for single devices or device types. Most devices need none. Add an entry, enter the device name (as shown in the Homebridge log at startup: \"Configure device <name>\") or a device type, and set only the options of the section that matches the device – the other sections have no effect on it.",
+      "description": "Optional settings for single devices or device types. Most devices need none. Add an entry, enter the device name (as shown in the Homebridge log at startup: \"Configure device …\" followed by the name) or a device type, and set only the options of the section that matches the device – the other sections have no effect on it.",
       "expandable": true,
       "expanded": false,
       "items": [
@@ -255,7 +258,10 @@
           "type": "array",
           "items": [
             {
-              "type": "div",
+              "type": "section",
+              "title": "{{ value.key || values.key || 'New entry – enter a device name' }}",
+              "expandable": true,
+              "expanded": false,
               "items": [
                 "devicesConfig[].key",
                 {
@@ -332,7 +338,9 @@
                 }
               ]
             }
-          ]
+          ],
+          "title": "Entries",
+          "buttonText": "Add device or type"
         }
       ]
     },
