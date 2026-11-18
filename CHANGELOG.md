@@ -1,3 +1,16 @@
+## 2.4.2 (2026-11-18)
+
+### Changed
+
+- Settings form: the section "What" is now called *Devices and scenarios* and explains what it does. Hidden devices: description of which name or type to enter and where to find it, and that a hidden device is removed from Apple Home. Scenarios: noted that they only work with a cloud service
+- Settings form, *Advanced settings*: clearer names and descriptions (update interval, full refresh interval, certificate check); the global debug log can now be switched on here
+- README: options and troubleshooting described accordingly; the full refresh does not help for devices without feedback (RTS) – the old text suggested it
+
+### Fixed
+
+- Hiding a device or scenario now also works with the name shown in Apple Home and in the log, not only with the name from the TaHoma app
+- `exposeScenarios` with a list of scenario names now exposes only these scenarios, as documented (before, all scenarios were exposed)
+
 ## 2.4.1 (2026-11-17)
 
 ### Changed

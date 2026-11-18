@@ -51,7 +51,8 @@ export class Platform implements DynamicPlatformPlugin {
             process.on('uncaughtException', (error: any) => this.log.error('Uncaught exception:', error));
         }
 
-        this.exclude = config.exclude || [];
+        // Entries may contain the name from the TaHoma app or the name shown in Apple Home / the log
+        this.exclude = (config.exclude || []).filter((x) => typeof x === 'string').map((x) => x.trim()).filter((x) => x !== '');
         this.exclude.push('Pod', 'ConfigurationComponent', 'NetworkComponent', 'ProtocolGateway', 'ConsumptionSensor',
             'OnOffHeatingSystem', 'Wifi', 'RemoteController',
             // AtlanticElectricalTowelDryer bad sensors
@@ -133,6 +134,7 @@ export class Platform implements DynamicPlatformPlugin {
                     this.exclude.includes(device.definition.widgetName) ||
                     this.exclude.includes(device.controllableName) ||
                     this.exclude.includes(device.label) ||
+                    this.exclude.includes(hapName(device.label)) ||
                     this.exclude.includes(device.protocol)
                 ) {
                     continue;
@@ -186,7 +188,13 @@ export class Platform implements DynamicPlatformPlugin {
                 });
 
                 for (const actionGroup of actionGroups) {
-                    if (this.exclude.includes(actionGroup.label) || actionGroup.label.startsWith('internal:') || actionGroup.label === '') {
+                    if (this.exclude.includes(actionGroup.label) || this.exclude.includes(hapName(actionGroup.label, 'Scenario')) ||
+                        actionGroup.label.startsWith('internal:') || actionGroup.label === '') {
+                        continue;
+                    }
+                    // A list of names exposes only these scenarios
+                    if (Array.isArray(this.exposeScenarios) && !this.exposeScenarios.includes(actionGroup.label) &&
+                        !this.exposeScenarios.includes(hapName(actionGroup.label, 'Scenario'))) {
                         continue;
                     }
 

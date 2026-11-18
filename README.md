@@ -115,13 +115,13 @@ Then add the platform to your `config.json` (see [Configuration](#configuration)
 | `service` | string | `somfy_europe` | Service, see [Requirements](#requirements) |
 | `user` | string | – | **Required.** Local: gateway PIN or IPv4 address. Cloud: account e-mail |
 | `password` | string | – | **Required.** Local: API token. Cloud: account password |
-| `pollingPeriod` | number (s) | `5` local / `60` cloud | How often changes made elsewhere (remote, TaHoma app) are fetched. Cloud: at least 10 |
-| `refreshPeriod` | number (min) | `30` local / `1440` cloud | Periodic full state refresh, needed for RTS devices and physical remotes that do not report their state. `0` disables it. The Somfy cloud allows only one refresh per day – lower values cause `429 QUOTA_EXCEEDED` |
+| `pollingPeriod` | number (s) | `5` local / `60` cloud | Update interval: how often the plugin asks the gateway for changes made elsewhere (TaHoma app, remote, other systems). Cloud: at least 10, at most 60 |
+| `refreshPeriod` | number (min) | `30` local / `1440` cloud | Full refresh interval, in case a change was missed. Local API: re-reads the states the gateway knows. Cloud: asks the gateway to query the devices – allowed only once a day, lower values cause `429 QUOTA_EXCEEDED`. `0` disables it. Devices without feedback (RTS) cannot report their state either way |
 | `tlsInsecure` | boolean | `false` | Local API only: skip the gateway certificate check (by default verified against the [Overkiz root CA](https://ca.overkiz.com/overkiz-root-ca-2048.crt)). Use only if the connection fails with a certificate error |
-| `exclude` | string[] | `[]` | Devices to hide: device name, widget, UI class or protocol (e.g. `"rts"`, `"Main door"`, `"PositionableHorizontalAwning"`) |
-| `exposeScenarios` | boolean / string[] | `false` | Cloud only: expose TaHoma scenarios as switches in Apple Home; `true` for all or a list of scenario names |
+| `exclude` | string[] | `[]` | Devices and scenarios to hide: name as shown in the log at startup ("Configure device <name>") or in the TaHoma app, a type from the line below it (UI class or widget, e.g. `"PositionableHorizontalAwning"`) or a radio protocol (`"io"`, `"rts"`). A hidden device is removed from Apple Home, including its room and automations |
+| `exposeScenarios` | boolean / string[] | `false` | Cloud only (the local API offers no scenarios): show TaHoma scenarios as switches in Apple Home. `true` for all, or a list of scenario names for only these (JSON config) |
 | `devicesConfig` | object[] | `[]` | Per-device settings, see [below](#device-specific-configuration) |
-| `debug` | boolean | `false` | Verbose log output |
+| `debug` | boolean | `false` | Detailed log for all devices (commands, states, requests to the gateway) – for troubleshooting. For a single device see [`devicesConfig`](#all-devices) |
 
 ## Local API (recommended)
 
@@ -230,7 +230,7 @@ A device type that is not supported shows up in the log as *"… not supported"*
 | Certificate error with the local API | Set `"tlsInsecure": true` and please open an issue with the error message |
 | `401` with the local API | The token was revoked or mistyped – generate a new one in the TaHoma app |
 | `429 QUOTA_EXCEEDED` (cloud) | Increase `refreshPeriod` (default 1440) or set it to `0` – or switch to the [local API](#local-api-recommended) |
-| Changes made with a remote are not shown | RTS devices cannot report their state; keep `refreshPeriod` enabled |
+| Changes made with a remote are not shown | RTS devices cannot report their state at all. io devices normally report within seconds; if the TaHoma app shows the old state too, the gateway missed the report – it is updated with the next report or when the device is opened in the TaHoma app |
 | Accessories disappeared after installing this plugin | Both plugins were installed at the same time – restore your backup and follow [Migrating](#migrating-from-homebridge-tahoma) |
 
 For a detailed log, set `"debug": true` and restart Homebridge. For a single device, add `"debug": true` to its entry in `devicesConfig` – the log then also shows the commands and states the gateway offers for it.

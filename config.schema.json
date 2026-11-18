@@ -79,35 +79,43 @@
         "required": true,
         "description": "Your password/token for selected service"
       },
+      "exposeScenarios": {
+        "title": "Scenarios as switches (cloud only)",
+        "type": "boolean",
+        "description": "Show the scenarios of the TaHoma app as switches in Apple Home; switching one on starts the scenario. Only with a cloud service – the local API does not offer scenarios."
+      },
+      "exclude": {
+        "title": "Hidden devices and scenarios",
+        "type": "array",
+        "items": {
+          "type": "string",
+          "title": "Name or type",
+          "description": "Device or scenario name as shown in the Homebridge log at startup (\"Configure device <name>\") or in the TaHoma app – or a type from the line below it (e.g. \"PositionableHorizontalAwning\", \"Light\") or a radio protocol (\"io\", \"rts\")."
+        }
+      },
       "pollingPeriod": {
-        "title": "Polling period",
+        "title": "Update interval (s)",
         "type": "number",
         "minimum": 1,
         "placeholder": 5,
-        "description": "Period (in seconds) for fetching device changes made from other controller (with TaHoma app for eg.). Default: 5 for the local API, 60 for cloud services (cloud: at least 10)"
+        "description": "How often the plugin asks the gateway for changes made elsewhere (TaHoma app, remote, other systems). Default: 5 with the local API, 60 with the cloud (cloud: at least 10, at most 60)."
       },
       "refreshPeriod": {
-        "title": "Refresh period",
+        "title": "Full refresh interval (min)",
         "type": "number",
         "minimum": 0,
-        "placeholder": 1440,
-        "description": "Period (in minutes) for refreshing device changes made locally (with remote control for eg.). Needed for RTS devices and some physical remotes. Default: 1440 (once a day) for cloud services – the Somfy cloud allows only one refresh per day –, 30 for the local API. Set 0 to disable it."
+        "placeholder": 30,
+        "description": "How often all device states are read again completely, in case a change was missed. Local API: re-reads the states the gateway knows (default 30). Cloud: asks the gateway to query the devices – the Somfy cloud allows this only once a day (default 1440). 0 = off. Devices without feedback (RTS) cannot report their state either way."
       },
       "tlsInsecure": {
-        "title": "Disable TLS certificate check (local API)",
+        "title": "Skip certificate check (local API)",
         "type": "boolean",
-        "description": "Only if the connection to your gateway fails with a certificate error. By default the gateway certificate is verified against the Overkiz root CA."
+        "description": "Only if the connection to the gateway fails with a certificate error. By default the gateway certificate is verified against the Overkiz root CA."
       },
-      "exposeScenarios": {
-        "title": "Expose scenarios",
+      "debug": {
+        "title": "Debug log",
         "type": "boolean",
-        "description": "Expose scenarios as switches in Apple Home to trigger them"
-      },
-      "exclude": {
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
+        "description": "More detailed log for all devices (commands, states, requests to the gateway) – for troubleshooting only. For a single device use \"Debug log\" under *Device specific config*."
       },
       "devicesConfig": {
         "type": "array",
@@ -218,21 +226,20 @@
     "password",
     {
       "type": "fieldset",
-      "title": "What",
-      "description": "Select what kind of resources to expose.",
+      "title": "Devices and scenarios",
+      "description": "Which devices and scenarios appear in Apple Home. By default all supported devices are shown. A hidden device is removed from Apple Home, including its room and automations.",
       "expandable": true,
       "expanded": false,
       "items": [
         "exposeScenarios",
         {
-          "title": "Exclude devices or scenarios",
-          "description": "Exclude devices or scenarios from being exposed",
           "key": "exclude",
           "type": "array",
-          "items": {
-            "type": "string",
-            "description": "Device or scenarios name, widget, uiClass or protocol."
-          }
+          "title": "Hidden devices and scenarios",
+          "description": "One entry per device, scenario or type to hide.",
+          "items": [
+            "exclude[]"
+          ]
         }
       ]
     },
@@ -331,14 +338,15 @@
     },
     {
       "type": "fieldset",
-      "title": "Advanced Settings",
-      "description": "Don't change these, unless you understand what you're doing.",
+      "title": "Advanced settings",
+      "description": "Usually not needed – the defaults suit most installations.",
       "expandable": true,
       "expanded": false,
       "items": [
         "pollingPeriod",
         "refreshPeriod",
-        "tlsInsecure"
+        "tlsInsecure",
+        "debug"
       ]
     }
   ]
