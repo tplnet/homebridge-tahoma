@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/tplnet/homebridge-tahoma/master/docs/images/icon.png" width="128" alt="Homebridge Somfy TaHoma (tplnet) icon">
+</p>
+
 # Homebridge Somfy TaHoma (tplnet)
 
 [![npm](https://img.shields.io/npm/v/@tplnet/homebridge-tahoma)](https://www.npmjs.com/package/@tplnet/homebridge-tahoma)
