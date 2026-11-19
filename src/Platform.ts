@@ -23,10 +23,14 @@ let processHandlersInstalled = false;
  * This class is the main constructor for your plugin, this is where you should
  * parse the user config and discover/register accessories with Homebridge.
  */
+/** Services supported in version 3: Somfy TaHoma only (local API and Somfy cloud, incl. the old aliases) */
+export const SOMFY_SERVICES = ['local', 'somfy_europe', 'somfy_australia', 'somfy_north_america', 'tahoma', 'tahoma_switch', 'connexoon',
+    'connexoon_rts'];
+
 export class Platform implements DynamicPlatformPlugin {
     // this is used to track restored cached accessories
     private readonly accessories: PlatformAccessory[] = [];
-    public readonly client: Client;
+    public readonly client!: Client;
 
     private readonly exclude: Array<string>;
     private readonly exposeScenarios: boolean | Array<string>;
@@ -60,12 +64,6 @@ export class Platform implements DynamicPlatformPlugin {
             'WeatherForecastSensor',
         );
         this.exposeScenarios = config.exposeScenarios;
-        // Only Somfy TaHoma can be tested by the maintainer: announced to be dropped in version 3.0.0
-        if (['cozytouch', 'hi_kumo', 'flexom', 'rexel'].includes(config.service)) {
-            this.log.warn(`The service '${config.service}' is not tested in this fork and will no longer be supported from version 3.0.0 `
-                + '(Somfy TaHoma only: local API and Somfy cloud). Version 2.x keeps working with it. '
-                + 'Details: https://github.com/tplnet/homebridge-tahoma#future-somfy-tahoma-only');
-        }
         // Entries without a device name (e.g. an empty entry added by the settings form) apply to nothing: skip them
         config.devicesConfig?.filter((x) => typeof x?.key === 'string' && x.key.trim() !== '')
             .forEach((x) => this.devicesConfig[x.key.trim()] = x);
@@ -79,6 +77,15 @@ export class Platform implements DynamicPlatformPlugin {
                 }
             },
         });
+        // Version 3 supports Somfy TaHoma only (local API and Somfy cloud). Other Overkiz services are refused with a
+        // clear message; the platform then stays inactive, so the cached accessories are kept for a downgrade to 2.x.
+        const service = String(config['service'] ?? 'somfy_europe').toLowerCase();
+        if (!SOMFY_SERVICES.includes(service)) {
+            this.log.error(`The service '${config['service']}' is not supported anymore: version 3 of this plugin supports Somfy TaHoma `
+                + 'only (local API and Somfy cloud). To keep using it, install version 2.x (Homebridge UI → plugin → Manage Version) '
+                + 'or the original homebridge-tahoma. The plugin does nothing until then.');
+            return;
+        }
         this.client = new Client(logger, config);
 
         // When this event is fired it means Homebridge has restored all cached accessories from disk.

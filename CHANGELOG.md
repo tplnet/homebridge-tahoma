@@ -1,3 +1,14 @@
+## 3.0.0-beta.1 (unreleased)
+
+### Changed
+
+- **Somfy TaHoma only:** version 3 supports the local API and the Somfy cloud (Europe, Australia, North America). Atlantic / Thermor / Sauter Cozytouch, Hitachi Hi Kumo, Flexom and Rexel Energeasy are no longer supported – they could not be tested. With one of these services the plugin logs an error and does nothing, so the accessories stay cached for a downgrade to 2.x
+- Settings form: only the Somfy services can be selected; README and package description updated
+
+### Removed
+
+- Device types that cannot be connected to a TaHoma gateway: Hitachi heat pumps (Hi Kumo) and Honeywell evohome
+
 ## 2.4.5 (2026-11-19)
 
 ### Changed

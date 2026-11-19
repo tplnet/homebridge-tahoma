@@ -15,7 +15,7 @@ Package: [`@tplnet/homebridge-tahoma`](https://www.npmjs.com/package/@tplnet/hom
 
 Control your **Somfy TaHoma** devices – roller shutters, blinds, awnings, gates, garage doors, lights, heating, alarms, sensors – with **Apple Home** and Siri, through [Homebridge](https://homebridge.io).
 
-Made and tested for **Somfy TaHoma** / TaHoma Switch / Connexoon – via the **local API** of your TaHoma gateway or via the Somfy cloud. Other Overkiz based services (Atlantic / Thermor / Sauter Cozytouch, Hitachi Hi Kumo, Flexom, Rexel Energeasy) still work as in the original plugin, but are **not tested** – see [Future: Somfy TaHoma only](#future-somfy-tahoma-only).
+For **Somfy TaHoma** / TaHoma Switch / Connexoon – via the **local API** of your TaHoma gateway or via the Somfy cloud. Other Overkiz based services (Cozytouch, Hi Kumo, Flexom, Energeasy): see [Somfy TaHoma only](#somfy-tahoma-only-version-3).
 
 > This is a maintained fork of [dubocr/homebridge-tahoma](https://github.com/dubocr/homebridge-tahoma) by Romain Duboc, using the forked API client [`@tplnet/overkiz-client`](https://github.com/tplnet/overkiz-client).
 > It is a **drop-in replacement**: the platform name stays `Tahoma`, so your configuration and your accessories in Apple Home are kept – see [Migrating](#migrating-from-homebridge-tahoma).
@@ -52,17 +52,13 @@ Made and tested for **Somfy TaHoma** / TaHoma Switch / Connexoon – via the **l
 | `somfy_europe` | Somfy Europe | TaHoma, TaHoma Switch, Connexoon IO, Orange connectivity kit |
 | `somfy_australia` | Somfy Australia | Connexoon RTS and other products in Australia |
 | `somfy_north_america` | Somfy North America | TaHoma and other products in North America |
-| `cozytouch` | Atlantic, Thermor, Sauter | Cozytouch – *not tested, see below* |
-| `flexom` | Bouygues | Flexom – *not tested, see below* |
-| `hi_kumo` | Hitachi | Hi Kumo – *not tested, see below* |
-| `rexel` | Rexel | Energeasy Connect – *not tested, see below* |
 
-### Future: Somfy TaHoma only
+### Somfy TaHoma only (version 3)
 
 > [!IMPORTANT]
-> This fork is maintained and tested with a **Somfy TaHoma** gateway only. From **version 3.0.0** it will support **Somfy TaHoma only** – local API and Somfy cloud (`local`, `somfy_europe`, `somfy_australia`, `somfy_north_america`). Devices of other brands connected to a TaHoma gateway stay supported.
+> Version 3 supports **Somfy TaHoma only** – local API and Somfy cloud. Devices of other brands connected to a TaHoma gateway stay supported.
 >
-> The other services – `cozytouch`, `hi_kumo`, `flexom`, `rexel` – work in version 2.x as in the original plugin, but are **not tested**: bugs and feature requests for them can only be handled if someone helps with testing. If you use one of them, stay on version 2.x (Homebridge UI → plugin → *Manage Version*) or use the original [homebridge-tahoma](https://github.com/dubocr/homebridge-tahoma). The plugin logs a warning at startup for these services.
+> Atlantic / Thermor / Sauter **Cozytouch**, Hitachi **Hi Kumo**, **Flexom** and Rexel **Energeasy** are no longer supported: they could not be tested by the maintainer. If you use one of them, stay on **version 2.x** (Homebridge UI → plugin → *Manage Version*) or use the original [homebridge-tahoma](https://github.com/dubocr/homebridge-tahoma). Version 3 logs an error and does nothing with these services – your accessories are kept for the downgrade.
 
 ## Installation
 
@@ -147,7 +143,7 @@ More information: [Somfy TaHoma Developer Mode](https://github.com/Somfy-Develop
 
 ## Supported devices
 
-Roller shutters, exterior and interior venetian blinds, adjustable slats, awnings, pergolas, screens, curtains, swinging shutters, windows and window handles, garage doors and gates, door locks, lights and on/off switches, sirens and alarms, heating systems (Atlantic, Somfy thermostat, EvoHome, Hitachi), water heaters, ventilation, and sensors for temperature, humidity, light, air quality, smoke, water, rain, contact, occupancy and electricity consumption.
+Roller shutters, exterior and interior venetian blinds, adjustable slats, awnings, pergolas, screens, curtains, swinging shutters, windows and window handles, garage doors and gates, door locks, lights and on/off switches, sirens and alarms, heating (Somfy thermostats and valves, Atlantic io heaters and towel dryers), water heaters, ventilation, and sensors for temperature, humidity, light, air quality, smoke, water, rain, contact, occupancy and electricity consumption.
 
 A device type that is not supported shows up in the log as *"… not supported"*. Please [open an issue](https://github.com/tplnet/homebridge-tahoma/issues) with that log line and the device's widget name.
 
@@ -177,7 +173,7 @@ Network connections depend on the selected `service`:
 | Service | Connections |
 |---|---|
 | `local` | Only to **your TaHoma gateway in your home network** (HTTPS, port 8443), plus an mDNS lookup in the local network when the gateway is configured by its PIN. **Nothing leaves your network.** |
-| Cloud services | Only to the servers of the selected service, e.g. `ha101-1.overkiz.com` for Somfy Europe; Cozytouch additionally uses `apis.groupe-atlantic.com` to log in. |
+| Somfy cloud | Only to the Somfy servers of the selected region, e.g. `ha101-1.overkiz.com` for Somfy Europe. |
 | `proxy` option | All requests go to the proxy you configure – only if you set it. |
 
 What is stored or sent:

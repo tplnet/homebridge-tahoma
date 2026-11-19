@@ -2,7 +2,7 @@
   "pluginAlias": "Tahoma",
   "pluginType": "platform",
   "singular": false,
-  "headerDisplay": "**Somfy TaHoma only from version 3.0.0:** this fork is tested with Somfy TaHoma (local API and Somfy cloud) only. Cozytouch, Hi Kumo, Flexom and Energeasy still work in 2.x, but are not tested and will be dropped in 3.0.0.\n\n**Several gateways or accounts:** one configuration per TaHoma gateway or cloud account. With **+** (at the bottom) you add another one – only needed for a second gateway or an additional Somfy account. Never add the same gateway twice. Give each configuration its own name and run each as a separate **child bridge** (Homebridge settings → Bridges): Homebridge does not load the same platform twice in one bridge.",
+  "headerDisplay": "**Somfy TaHoma only:** version 3 supports the local API and the Somfy cloud. Cozytouch, Hi Kumo, Flexom and Energeasy: use version 2.x.\n\n**Several gateways or accounts:** one configuration per TaHoma gateway or cloud account. With **+** (at the bottom) you add another one – only needed for a second gateway or an additional Somfy account. Never add the same gateway twice. Give each configuration its own name and run each as a separate **child bridge** (Homebridge settings → Bridges): Homebridge does not load the same platform twice in one bridge.",
   "schema": {
     "type": "object",
     "properties": {
@@ -40,30 +40,6 @@
             "title": "Somfy North America",
             "enum": [
               "somfy_north_america"
-            ]
-          },
-          {
-            "title": "Cozytouch (Atlantic / Thermor / Sauter) – not tested, ends with 3.0.0",
-            "enum": [
-              "cozytouch"
-            ]
-          },
-          {
-            "title": "Energeasy Connect (Rexel) – not tested, ends with 3.0.0",
-            "enum": [
-              "rexel"
-            ]
-          },
-          {
-            "title": "Hi Kumo (Hitachi) – not tested, ends with 3.0.0",
-            "enum": [
-              "hi_kumo"
-            ]
-          },
-          {
-            "title": "Flexom (Bouygues) – not tested, ends with 3.0.0",
-            "enum": [
-              "flexom"
             ]
           }
         ],
