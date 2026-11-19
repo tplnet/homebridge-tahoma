@@ -1,6 +1,6 @@
 import { Characteristics, Services } from './Platform.js';
 import { Characteristic, Logger, PlatformAccessory, Service } from 'homebridge';
-import { ExecutionState, ActionGroup, Execution } from 'overkiz-client';
+import { ExecutionState, ActionGroup, Execution } from './overkiz/index.js';
 import { Platform } from './Platform.js';
 
 export default class Mapper {

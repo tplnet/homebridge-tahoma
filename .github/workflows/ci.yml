@@ -19,3 +19,5 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm run lint
       - run: npm run build
+      - name: Tests (simulated gateway and Somfy cloud)
+        run: npm test

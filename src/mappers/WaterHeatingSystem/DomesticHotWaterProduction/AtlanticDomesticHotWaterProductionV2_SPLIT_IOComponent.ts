@@ -1,5 +1,5 @@
 import { Service } from 'homebridge';
-import { Command } from 'overkiz-client';
+import { Command } from '../../../overkiz/index.js';
 import { Characteristics } from '../../../Platform.js';
 import DomesticHotWaterProduction from '../DomesticHotWaterProduction.js';
 

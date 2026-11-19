@@ -1,4 +1,4 @@
-import { Command } from 'overkiz-client';
+import { Command } from '../../overkiz/index.js';
 import RollerShutter from '../RollerShutter.js';
 export default class PositionableRollerShutterWithLowSpeedManagement extends RollerShutter {
     protected lowSpeed;

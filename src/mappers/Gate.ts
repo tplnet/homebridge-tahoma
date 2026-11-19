@@ -1,6 +1,6 @@
 import { Characteristics, Services } from '../Platform.js';
 import { Characteristic, Service } from 'homebridge';
-import { Command, ExecutionState } from 'overkiz-client';
+import { Command, ExecutionState } from '../overkiz/index.js';
 import GarageDoor from './GarageDoor.js';
 
 export default class Gate extends GarageDoor {

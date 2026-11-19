@@ -1,5 +1,5 @@
 import { Characteristic, Service } from 'homebridge';
-import { Command, ExecutionState } from 'overkiz-client';
+import { Command, ExecutionState } from '../../overkiz/index.js';
 import { Characteristics, Services } from '../../Platform.js';
 import ExteriorHeatingSystem from '../ExteriorHeatingSystem.js';
 

@@ -25,6 +25,7 @@
     "build": "rimraf ./dist && tsc",
     "prepublishOnly": "npm run lint && npm run build",
     "smoke": "node scripts/homebridge-smoke.mjs",
+    "test": "node test/smoke.mjs && node test/cloud-client.mjs",
     "version": "node scripts/release-notes.mjs > /dev/null",
     "malware": "node scripts/malware-scan.mjs"
   },
@@ -35,11 +36,9 @@
     "connexoon"
   ],
   "homepage": "https://github.com/tplnet/homebridge-tahoma#readme",
-  "dependencies": {
-    "overkiz-client": "npm:@tplnet/overkiz-client@^1.3.4"
-  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@types/multicast-dns": "^7.2.4",
     "@types/node": "^25.6.0",
     "eslint": "^10.3.0",
     "homebridge": "^2.0.0",
@@ -61,5 +60,8 @@
   },
   "overrides": {
     "minimatch": "^11.0.8"
+  },
+  "dependencies": {
+    "multicast-dns": "^7.2.5"
   }
 }

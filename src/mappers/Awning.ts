@@ -1,5 +1,5 @@
 import RollerShutter from './RollerShutter.js';
-import { Command } from 'overkiz-client';
+import { Command } from '../overkiz/index.js';
 
 export default class Awning extends RollerShutter {
     /**

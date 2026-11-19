@@ -1,7 +1,7 @@
 import { API, Characteristic, DynamicPlatformPlugin, Logger, PlatformAccessory, PlatformConfig, Service } from 'homebridge';
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
-import { Client, Execution, Action } from 'overkiz-client';
+import { Client, Execution, Action } from './overkiz/index.js';
 import Mapper from './Mapper.js';
 import SceneMapper from './SceneMapper.js';
 import { CustomCharacteristics } from './CustomCharacteristics.js';
@@ -86,7 +86,22 @@ export class Platform implements DynamicPlatformPlugin {
                 + 'or the original homebridge-tahoma. The plugin does nothing until then.');
             return;
         }
-        this.client = new Client(logger, config);
+        try {
+            this.client = new Client(logger, {
+                service,
+                // gateway / token (names of homebridge-tahoma-local) are accepted as aliases for the local API
+                user: config['user'] ?? config['gateway'],
+                password: config['password'] ?? config['token'],
+                tlsInsecure: config['tlsInsecure'],
+                pollingPeriod: config['pollingPeriod'],
+                execPollingPeriod: config['execPollingPeriod'],
+                refreshPeriod: config['refreshPeriod'],
+            });
+        } catch (error: any) {
+            // e.g. missing credentials or an invalid gateway PIN / IP address: a clear message instead of a crash
+            this.log.error((error?.message ?? String(error)) + ' – the plugin does nothing until the configuration is fixed.');
+            return;
+        }
 
         // When this event is fired it means Homebridge has restored all cached accessories from disk.
         // Dynamic Platform plugins should only register new accessories after this event was fired,

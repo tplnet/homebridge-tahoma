@@ -17,7 +17,7 @@ Control your **Somfy TaHoma** devices – roller shutters, blinds, awnings, gate
 
 For **Somfy TaHoma** / TaHoma Switch / Connexoon – via the **local API** of your TaHoma gateway or via the Somfy cloud. Other Overkiz based services (Cozytouch, Hi Kumo, Flexom, Energeasy): see [Somfy TaHoma only](#somfy-tahoma-only-version-3).
 
-> This is a maintained fork of [dubocr/homebridge-tahoma](https://github.com/dubocr/homebridge-tahoma) by Romain Duboc, using the forked API client [`@tplnet/overkiz-client`](https://github.com/tplnet/overkiz-client).
+> This is a maintained fork of [dubocr/homebridge-tahoma](https://github.com/dubocr/homebridge-tahoma) by Romain Duboc. Since version 3 the API client is built in (derived from [dubocr/overkiz-client](https://github.com/dubocr/overkiz-client)); it uses only Node.js built-ins and one small package for the gateway search.
 > It is a **drop-in replacement**: the platform name stays `Tahoma`, so your configuration and your accessories in Apple Home are kept – see [Migrating](#migrating-from-homebridge-tahoma).
 > Changes compared to the original: [CHANGELOG.md](CHANGELOG.md).
 
@@ -174,7 +174,6 @@ Network connections depend on the selected `service`:
 |---|---|
 | `local` | Only to **your TaHoma gateway in your home network** (HTTPS, port 8443), plus an mDNS lookup in the local network when the gateway is configured by its PIN. **Nothing leaves your network.** |
 | Somfy cloud | Only to the Somfy servers of the selected region, e.g. `ha101-1.overkiz.com` for Somfy Europe. |
-| `proxy` option | All requests go to the proxy you configure – only if you set it. |
 
 What is stored or sent:
 

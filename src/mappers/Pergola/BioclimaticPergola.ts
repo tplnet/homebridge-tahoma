@@ -1,4 +1,4 @@
-import { Command } from 'overkiz-client';
+import { Command } from '../../overkiz/index.js';
 import Pergola from '../Pergola.js';
 
 export default class BioclimaticPergola extends Pergola {

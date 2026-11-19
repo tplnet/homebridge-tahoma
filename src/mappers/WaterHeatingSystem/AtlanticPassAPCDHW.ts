@@ -1,5 +1,5 @@
 import { Characteristics } from '../../Platform.js';
-import { Command } from 'overkiz-client';
+import { Command } from '../../overkiz/index.js';
 import WaterHeatingSystem from '../WaterHeatingSystem.js';
 
 export default class AtlanticPassAPCDHW extends WaterHeatingSystem {

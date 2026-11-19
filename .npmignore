@@ -1,8 +1,9 @@
 # Ignore source code
 src
 
-# Maintainer scripts (smoke test)
+# Maintainer scripts and tests
 scripts
+test
 
 # ------------- Defaults ------------- #
 

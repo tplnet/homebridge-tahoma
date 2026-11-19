@@ -1,6 +1,6 @@
 import { Characteristics } from '../../Platform.js';
 import { Perms } from 'homebridge';
-import { Command } from 'overkiz-client';
+import { Command } from '../../overkiz/index.js';
 import HeatingSystem from '../HeatingSystem.js';
 
 const FROSTPROTECTION_TEMP = 7;

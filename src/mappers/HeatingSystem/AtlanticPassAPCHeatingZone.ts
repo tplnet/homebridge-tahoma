@@ -1,5 +1,5 @@
 import { Characteristics } from '../../Platform.js';
-import { Command } from 'overkiz-client';
+import { Command } from '../../overkiz/index.js';
 import HeatingSystem from '../HeatingSystem.js';
 
 export default class AtlanticPassAPCHeatingZone extends HeatingSystem {

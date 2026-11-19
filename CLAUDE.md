@@ -1,9 +1,10 @@
 # @tplnet/homebridge-tahoma
 
-Maintained fork of dubocr/homebridge-tahoma ("Homebridge Somfy TaHoma (tplnet)"), platform name `Tahoma`, drop-in replacement. Uses `@tplnet/overkiz-client` through the npm alias `overkiz-client`.
+Maintained fork of dubocr/homebridge-tahoma ("Homebridge Somfy TaHoma (tplnet)"), platform name `Tahoma`, drop-in replacement. On branch `3.0` the API client is built in (`src/overkiz/`: local API + Somfy cloud, derived from `homebridge-tahoma-local` and `@tplnet/overkiz-client`); on `master` (2.x) it uses `@tplnet/overkiz-client` through the npm alias `overkiz-client`.
 
 ## Commands
 - `npm run lint`, `npm run build`, `npm audit --omit=dev`
+- `npm test` (branch `3.0`) – smoke test against a simulated gateway (`test/smoke.mjs`) and the cloud client against a simulated Somfy cloud (`test/cloud-client.mjs`); run `npm run build` first
 - `npm install --no-save homebridge@latest && npm run smoke` – starts Homebridge with the plugin (compatibility check)
 - Preview release notes: `node scripts/release-notes.mjs [version]`
 

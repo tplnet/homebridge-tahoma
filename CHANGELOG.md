@@ -5,9 +5,15 @@
 - **Somfy TaHoma only:** version 3 supports the local API and the Somfy cloud (Europe, Australia, North America). Atlantic / Thermor / Sauter Cozytouch, Hitachi Hi Kumo, Flexom and Rexel Energeasy are no longer supported – they could not be tested. With one of these services the plugin logs an error and does nothing, so the accessories stay cached for a downgrade to 2.x
 - Settings form: only the Somfy services can be selected; README and package description updated
 
+- **API client built in:** `@tplnet/overkiz-client` is no longer needed. The new client is based on the lean client of `homebridge-tahoma-local` (Node.js built-ins instead of axios, bonjour and uuid) plus the Somfy cloud: 4 instead of about 50 runtime packages. Accessory IDs are unchanged, your accessories, rooms and automations are kept
+- Clearer messages: wrong token (401), TLS problems, gateway or Somfy cloud not reachable (logged once, recovery as well), rejected cloud login with the time of the next attempt. A missing or invalid gateway / password stops the plugin with a message instead of a crash
+- Somfy cloud: when several requests hit an expired session at the same time, only one new login is made (before: one per request)
+- `gateway` and `token` (names of `homebridge-tahoma-local`) are accepted as aliases for `user` and `password`
+
 ### Removed
 
 - Device types that cannot be connected to a TaHoma gateway: Hitachi heat pumps (Hi Kumo) and Honeywell evohome
+- The undocumented `proxy` option
 
 ## 2.4.5 (2026-11-19)
 

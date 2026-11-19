@@ -1,7 +1,7 @@
 
 import { Characteristics, Services } from '../Platform.js';
 import { Characteristic } from 'homebridge';
-import { Command, ExecutionState } from 'overkiz-client';
+import { Command, ExecutionState } from '../overkiz/index.js';
 import Mapper from '../Mapper.js';
 
 export default class VentilationSystem extends Mapper {

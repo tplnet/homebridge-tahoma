@@ -1,6 +1,6 @@
 import { Characteristics, Services } from './Platform.js';
 import type { CharacteristicValue, Logger, PlatformAccessory, Service } from 'homebridge';
-import { Device, State, Command, Action, ExecutionState } from 'overkiz-client';
+import { Device, State, Command, Action, ExecutionState } from './overkiz/index.js';
 import { Platform } from './Platform.js';
 import { GREY } from './colors.js';
 import { hapName } from './hapName.js';
@@ -109,14 +109,6 @@ export default abstract class Mapper {
             service = this.accessory.getService(type) || this.accessory.addService(type);
         }
         service.setCharacteristic(Characteristics.Name, name);
-        /*
-        service.getCharacteristic(Characteristics.Name)
-            .updateValue(name)
-            .onSet((value) => {
-                this.debug('Will rename ' + name + ' to ' + value);
-                this.platform.client.setDeviceName(this.device.deviceURL, value);
-            });
-        */
         return service;
     }
 

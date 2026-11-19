@@ -1,5 +1,5 @@
 import { Characteristics } from '../../Platform.js';
-import { Command, ExecutionState } from 'overkiz-client';
+import { Command, ExecutionState } from '../../overkiz/index.js';
 import HeatingSystem from '../HeatingSystem.js';
 
 export default class SomfyThermostat extends HeatingSystem {

@@ -1,6 +1,6 @@
 import { Characteristics, Services } from '../Platform.js';
 import { Characteristic, Service } from 'homebridge';
-import { Command, ExecutionState } from 'overkiz-client';
+import { Command, ExecutionState } from '../overkiz/index.js';
 import Mapper from '../Mapper.js';
 import { EcoCharacteristic, ProgCharacteristic, TotalConsumptionCharacteristic } from '../CustomCharacteristics.js';
 

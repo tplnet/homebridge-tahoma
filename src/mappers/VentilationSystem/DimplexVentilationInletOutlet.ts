@@ -1,6 +1,6 @@
 
 import { Characteristics } from '../../Platform.js';
-import { Command } from 'overkiz-client';
+import { Command } from '../../overkiz/index.js';
 import VentilationSystem from '../VentilationSystem.js';
 
 export default class DimplexVentilationInletOutlet extends VentilationSystem {

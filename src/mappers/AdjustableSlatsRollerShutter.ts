@@ -1,4 +1,4 @@
-import { Command } from 'overkiz-client';
+import { Command } from '../overkiz/index.js';
 import VenetianBlind from './VenetianBlind.js';
 
 export default class AdjustableSlatsRollerShutter extends VenetianBlind {

@@ -1,6 +1,6 @@
 import { Characteristics } from '../../Platform.js';
 import { Characteristic } from 'homebridge';
-import { Command, ExecutionState } from 'overkiz-client';
+import { Command, ExecutionState } from '../../overkiz/index.js';
 import WaterHeatingSystem from '../WaterHeatingSystem.js';
 import { CurrentShowerCharacteristic, TargetShowerCharacteristic } from '../../CustomCharacteristics.js';
 

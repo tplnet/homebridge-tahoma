@@ -1,6 +1,6 @@
 import { Characteristics, Services } from '../Platform.js';
 import { Characteristic } from 'homebridge';
-import { Command, ExecutionState } from 'overkiz-client';
+import { Command, ExecutionState } from '../overkiz/index.js';
 import RollerShutter from './RollerShutter.js';
 
 export default class VenetianBlind extends RollerShutter {
