@@ -135,6 +135,8 @@ try {
     }
     await put([{ ...shutter, value: 30 }]);
     await waitFor(() => hbLog, /\[Büro kl\.\] setClosure COMPLETED/, 'shutter command completed');
+    // Readable label in the TaHoma app history (English, also with the local API)
+    await waitFor(() => gatewayLog, /"label":"Büro kl\. - Close 70% - Apple Home"/, 'readable command label');
     // The motor reports 71 % closed for 70 % (position 29 instead of 30): shown as the target, not as "Closing…"
     const current = findCharacteristic(accessories, 'Büro kl', 'Current Position');
     const read = async (c) => (await fetch(base + '/characteristics?id=' + c.aid + '.' + c.iid, { headers }).then((r) => r.json())).characteristics[0].value;

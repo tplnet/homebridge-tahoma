@@ -370,14 +370,4 @@ export default class Client extends EventEmitter {
         }
         return this.api.get('/actionGroups');
     }
-
-    /**
-     * Location of the setup (cloud only), e.g. to pick the language.
-     */
-    public async getSetupLocation(): Promise<any> {
-        if (this.isLocal) {
-            return undefined;
-        }
-        return this.api.get('/setup/location');
-    }
 }

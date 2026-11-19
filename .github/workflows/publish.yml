@@ -39,6 +39,8 @@ jobs:
         run: |
           npm install --no-save homebridge@latest && npm run smoke
           echo "HOMEBRIDGE_VERSION=$(node -p "require('homebridge/package.json').version")" >> "$GITHUB_ENV"
+      - name: Tests (simulated gateway and Somfy cloud)
+        run: npm test
       - name: Malware scan (OSV + ClamAV)
         uses: ./.github/actions/malware-scan
       - name: Stage the package on npm

@@ -115,7 +115,7 @@ export default abstract class Mapper {
     private translate(value: string) {
         switch (value) {
             case 'boost': return 'Boost';
-            case 'drying': return 'Séchage';
+            case 'drying': return 'Drying';
             default: return value.charAt(0).toUpperCase() + value.slice(1);
         }
     }
@@ -149,7 +149,7 @@ export default abstract class Mapper {
     protected async executeCommands(commands: Command | Array<Command> | undefined, standalone = false): Promise<Action> {
         if (commands === undefined || (Array.isArray(commands) && commands.length === 0)) {
             this.error('No target command for', this.device.label);
-            throw this.platform.api.hap.HAPStatus.RESOURCE_DOES_NOT_EXIST;
+            throw new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.RESOURCE_DOES_NOT_EXIST);
         } else if (Array.isArray(commands)) {
             for (const c of commands) {
                 this.info(c.name + JSON.stringify(c.parameters));
@@ -185,7 +185,7 @@ export default abstract class Mapper {
                         // Execution never started: no terminal event will release the slot.
                         release();
                         this.error(commandName + ' ' + error.message);
-                        reject(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE);
+                        reject(new this.platform.api.hap.HapStatusError(this.platform.api.hap.HAPStatus.SERVICE_COMMUNICATION_FAILURE));
                     }
                     this.actionPromise = null;
                 }, 100);

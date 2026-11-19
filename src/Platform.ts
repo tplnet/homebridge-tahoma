@@ -2,6 +2,7 @@ import { API, Characteristic, DynamicPlatformPlugin, Logger, PlatformAccessory, 
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 import { Client, Execution, Action } from './overkiz/index.js';
+import defaultTranslations from './lang/en.json' with { type: 'json' };
 import Mapper from './Mapper.js';
 import SceneMapper from './SceneMapper.js';
 import { CustomCharacteristics } from './CustomCharacteristics.js';
@@ -36,7 +37,6 @@ export class Platform implements DynamicPlatformPlugin {
     private readonly exposeScenarios: boolean | Array<string>;
     public readonly devicesConfig: Array<unknown> = [];
 
-    private translations;
     private executionPromise;
     private retryDelay = DEFAULT_RETRY_DELAY;
     // UUIDs already mapped: a discovery retry after a partial failure must not build them twice
@@ -111,26 +111,7 @@ export class Platform implements DynamicPlatformPlugin {
             log.debug('Executed didFinishLaunching callback');
             // run the method to discover / register your devices as accessories
             this.discoverDevices();
-            if (this.config['service'] !== 'local') {
-                this.loadLocation();
-            }
         });
-    }
-
-    /**
-     * This function is invoked when homebridge restores cached accessories from disk at startup.
-     * It should be used to setup event handlers for characteristics and update respective values.
-     */
-    async loadLocation() {
-        let countryCode = 'en';
-        const location = await this.client.getSetupLocation().catch((error) => this.log.warn('Fail to load lang file:', error));
-        if (location?.countryCode) {
-            countryCode = location.countryCode.toLowerCase().trim();
-        }
-        this.translations = await import(`./lang/${countryCode}.json`, { with: { type: 'json' } })
-            .catch(() => import('./lang/en.json', { with: { type: 'json' } }))
-            .then((c) => c.default);
-
     }
 
     /**
@@ -313,13 +294,11 @@ export class Platform implements DynamicPlatformPlugin {
     }
 
     /**
-     * Translate
-     * @param path 
-     * @returns string
+     * Human readable label of a command, e.g. "setClosure.30" -> "Close 30%" (shown in the TaHoma app history).
      */
-    public translate(label: string): string | null {
+    public translate(label: string): string {
         const path = label.split('.');
-        let translation = this.translations;
+        let translation: any = defaultTranslations;
         for (const key of path) {
             if (typeof translation === 'object' && key in translation) {
                 translation = translation[key];
@@ -330,6 +309,6 @@ export class Platform implements DynamicPlatformPlugin {
                 return translation;
             }
         }
-        return label;
+        return typeof translation === 'string' ? translation : label;
     }
 }

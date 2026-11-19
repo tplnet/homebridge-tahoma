@@ -9,11 +9,15 @@
 - Clearer messages: wrong token (401), TLS problems, gateway or Somfy cloud not reachable (logged once, recovery as well), rejected cloud login with the time of the next attempt. A missing or invalid gateway / password stops the plugin with a message instead of a crash
 - Somfy cloud: when several requests hit an expired session at the same time, only one new login is made (before: one per request)
 - `gateway` and `token` (names of `homebridge-tahoma-local`) are accepted as aliases for `user` and `password`
+- Readable command labels in the history of the TaHoma app also with the local API, e.g. "Bad - Close 100% - Apple Home" (before: "setClosure.100"); labels are always English
+- Errors reported to Apple Home use the proper HAP status (no generic error in the Home app)
+- Troubleshooting page lists the new log messages and what to do
 
 ### Removed
 
 - Device types that cannot be connected to a TaHoma gateway: Hitachi heat pumps (Hi Kumo) and Honeywell evohome
 - The undocumented `proxy` option
+- French command labels and the request for the setup location at startup (cloud): labels are English like the rest of the plugin
 
 ## 2.4.5 (2026-11-19)
 
