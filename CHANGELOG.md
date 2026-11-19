@@ -1,4 +1,4 @@
-## 3.0.0-beta.1 (unreleased)
+## 3.0.0-beta.1 (2026-11-19)
 
 ### Changed
 
