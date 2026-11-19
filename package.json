@@ -25,7 +25,8 @@
     "build": "rimraf ./dist && tsc",
     "prepublishOnly": "npm run lint && npm run build",
     "smoke": "node scripts/homebridge-smoke.mjs",
-    "version": "node scripts/release-notes.mjs > /dev/null"
+    "version": "node scripts/release-notes.mjs > /dev/null",
+    "malware": "node scripts/malware-scan.mjs"
   },
   "keywords": [
     "homebridge-plugin",

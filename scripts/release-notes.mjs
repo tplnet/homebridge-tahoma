@@ -53,6 +53,7 @@ if (withChecks) {
         checks.push(`Starts with the newest Homebridge release (${homebridge}) on Node.js ${process.versions.node}`);
     }
     checks.push('No known vulnerabilities (CVEs) in the runtime dependencies (`npm audit`)');
+    checks.push('No known malicious packages in the dependencies (OSV) and no malware in the package (ClamAV)');
     const matrix = /^\s*node:\s*\[([^\]]+)\]/m.exec(readFileSync(join(root, '.github/workflows/ci.yml'), 'utf8'));
     if (matrix) {
         checks.push(`Built and tested with Node.js ${matrix[1].split(',').map((node) => node.trim()).join(', ')}`);
