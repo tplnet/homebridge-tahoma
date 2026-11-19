@@ -15,7 +15,9 @@ For a detailed log, set `"debug": true` and restart Homebridge. For a single dev
 
 ## Device state not updated (e.g. garage door)
 
-io devices report their new state to the gateway after a movement. Sometimes this report gets lost (radio range, walls, metal doors) – then the TaHoma app shows the old state as well, and so does Apple Home. Opening the device in the TaHoma app asks it for its state and fixes it. The full refresh (`refreshPeriod`) does not help here, as it only re-reads what the gateway knows.
+io devices report their new state to the gateway after a movement. Sometimes this report gets lost (radio range, walls, metal doors) – then the TaHoma app shows the old state as well, and so does Apple Home. Opening the device in the TaHoma app asks it for its state and fixes it.
+
+It also happens that the gateway knows the new state but does not send the change to the plugin. Then the next full refresh (`refreshPeriod`) corrects it – with the local API every 5 minutes by default; set a lower value (e.g. `2`) if you want it faster.
 
 To see which commands and states the gateway offers for a device, add `"debug": true` to its entry in [`devicesConfig`](configuration.md#all-devices).
 

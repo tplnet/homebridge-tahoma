@@ -106,8 +106,8 @@
         "title": "Full refresh interval (min)",
         "type": "number",
         "minimum": 0,
-        "placeholder": 30,
-        "description": "How often all device states are read again completely, in case a change was missed. Local API: re-reads the states the gateway knows (default 30). Cloud: asks the gateway to query the devices – the Somfy cloud allows this only once a day (default 1440). 0 = off. Devices without feedback (RTS) cannot report their state either way."
+        "placeholder": 5,
+        "description": "How often all device states are read again completely, in case a change was missed. Local API: re-reads the states the gateway knows, cheap and without radio traffic (default 5). Cloud: asks the gateway to query the devices – the Somfy cloud allows this only once a day (default 1440). 0 = off. Devices without feedback (RTS) cannot report their state either way."
       },
       "tlsInsecure": {
         "title": "Skip certificate check (local API)",

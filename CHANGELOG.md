@@ -1,3 +1,10 @@
+## 2.4.4 (2026-11-19)
+
+### Fixed
+
+- Local API: a device whose change did not reach the plugin (e.g. a garage door closed with its remote, still shown as open in Apple Home) is corrected after at most 5 minutes instead of 30 – the full refresh now runs every 5 minutes by default. Requires `@tplnet/overkiz-client` ^1.3.4. A configured "Full refresh interval" is kept
+- Settings form, README and troubleshooting page describe the new default and the case of a missed change
+
 ## 2.4.3 (2026-11-18)
 
 ### Changed
