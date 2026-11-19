@@ -7,6 +7,7 @@ The settings form of the Homebridge UI covers everything described here. This pa
 - [All options](#all-options)
 - [Several gateways or accounts](#several-gateways-or-accounts)
 - [Device specific configuration](#device-specific-configuration)
+- [Beta versions](#beta-versions)
 
 ## All options
 
@@ -119,3 +120,12 @@ Only the settings of the section that matches the device have an effect; the oth
 | Setting | Type | Default | Description |
 |---|---|---|---|
 | `debug` | boolean | `false` | Troubleshooting: logs at startup which commands and states the gateway offers for this device, and more details about its commands (without changing the global `debug`) |
+
+## Beta versions
+
+Bigger changes – such as version 3.0.0 – are published as a **beta** first (e.g. `3.0.0-beta.1`) and become a regular version after they have been tested. Betas are not offered to users of the regular version.
+
+- **Try a beta:** Homebridge UI → *Plugins* → ⋮ on this plugin → *Manage Version* → choose the beta, or run `npm install @tplnet/homebridge-tahoma@beta` in the Homebridge storage directory. While you run a beta, the Homebridge UI offers newer betas and later the regular version as updates.
+- **Back to the regular version:** choose the latest regular version the same way, or `npm install @tplnet/homebridge-tahoma@latest`.
+- Betas can contain errors – please report them as an [issue](https://github.com/tplnet/homebridge-tahoma/issues). Back up Homebridge before trying a beta of a new major version.
+

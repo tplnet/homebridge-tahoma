@@ -13,6 +13,7 @@ Maintained fork of dubocr/homebridge-tahoma ("Homebridge Somfy TaHoma (tplnet)")
 - `devicesConfig` entries without a device name are ignored (the settings form adds an empty entry by itself).
 - `HAPStatus` comes from `api.hap`, never from a runtime import of `homebridge`.
 - Both plugins (this fork and `homebridge-tahoma-local`) coexist for now; the client stays a separate package.
+- Version 3.0.0 (plan: Somfy TaHoma only – local API and Somfy cloud –, client built in, improvements from `homebridge-tahoma-local`) is developed on the branch `3.0` and published as betas (`3.0.0-beta.N`, npm dist-tag `beta`); `master` stays on 2.x until the release. See `docs/releasing.md` → "Betas and the 3.0 branch".
 
 ## Rules for all tplnet Homebridge projects
 

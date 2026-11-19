@@ -8,6 +8,7 @@
 [![CI](https://github.com/tplnet/homebridge-tahoma/actions/workflows/ci.yml/badge.svg)](https://github.com/tplnet/homebridge-tahoma/actions/workflows/ci.yml)
 [![Compatibility & CVE check](https://github.com/tplnet/homebridge-tahoma/actions/workflows/compat.yml/badge.svg)](https://github.com/tplnet/homebridge-tahoma/actions/workflows/compat.yml)
 [![Malware scan](https://github.com/tplnet/homebridge-tahoma/actions/workflows/malware.yml/badge.svg)](https://github.com/tplnet/homebridge-tahoma/actions/workflows/malware.yml)
+[![npm beta](https://img.shields.io/npm/v/@tplnet/homebridge-tahoma/beta?label=beta)](https://www.npmjs.com/package/@tplnet/homebridge-tahoma?activeTab=versions)
 [![License](https://img.shields.io/npm/l/@tplnet/homebridge-tahoma)](LICENSE)
 
 Package: [`@tplnet/homebridge-tahoma`](https://www.npmjs.com/package/@tplnet/homebridge-tahoma)
@@ -124,6 +125,8 @@ Then add the platform to your `config.json` (see [Configuration](#configuration)
 
 The most important options are `service`, `user` and `password`. All other options – update intervals, hidden devices, scenarios, settings for single devices, several gateways – are described in **[docs/configuration.md](https://github.com/tplnet/homebridge-tahoma/blob/master/docs/configuration.md)**. The settings form of the Homebridge UI explains them as well.
 
+- **Beta versions:** bigger changes (such as version 3.0.0) are published as a beta first – how to try one: [Beta versions](https://github.com/tplnet/homebridge-tahoma/blob/master/docs/configuration.md#beta-versions).
+
 ## Local API (recommended)
 
 The local API talks directly to your gateway in your home network: no cloud account in Homebridge, no internet dependency, no rate limits and state changes within seconds.
@@ -188,7 +191,7 @@ The package has no install scripts, and its runtime dependencies do not send dat
 
 ## Documentation
 
-- [Configuration](https://github.com/tplnet/homebridge-tahoma/blob/master/docs/configuration.md) – all options, several gateways or accounts, settings for single devices (with screenshots of the settings form)
+- [Configuration](https://github.com/tplnet/homebridge-tahoma/blob/master/docs/configuration.md) – all options, several gateways or accounts, settings for single devices (with screenshots of the settings form), beta versions
 - [Troubleshooting](https://github.com/tplnet/homebridge-tahoma/blob/master/docs/troubleshooting.md) – common problems, debug log, reporting a problem
 - [Releasing](https://github.com/tplnet/homebridge-tahoma/blob/master/docs/releasing.md) – for maintainers
 - [Changelog](CHANGELOG.md)
