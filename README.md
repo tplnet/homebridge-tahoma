@@ -14,7 +14,7 @@ Package: [`@tplnet/homebridge-tahoma`](https://www.npmjs.com/package/@tplnet/hom
 
 Control your **Somfy TaHoma** devices – roller shutters, blinds, awnings, gates, garage doors, lights, heating, alarms, sensors – with **Apple Home** and Siri, through [Homebridge](https://homebridge.io).
 
-Works with all **Overkiz** based platforms: Somfy TaHoma / TaHoma Switch / Connexoon, Atlantic / Thermor / Sauter **Cozytouch**, Hitachi Hi Kumo, Flexom and Rexel Energeasy – via the **local API** of your TaHoma gateway or via the manufacturer's cloud.
+Made and tested for **Somfy TaHoma** / TaHoma Switch / Connexoon – via the **local API** of your TaHoma gateway or via the Somfy cloud. Other Overkiz based services (Atlantic / Thermor / Sauter Cozytouch, Hitachi Hi Kumo, Flexom, Rexel Energeasy) still work as in the original plugin, but are **not tested** – see [Future: Somfy TaHoma only](#future-somfy-tahoma-only).
 
 > This is a maintained fork of [dubocr/homebridge-tahoma](https://github.com/dubocr/homebridge-tahoma) by Romain Duboc, using the forked API client [`@tplnet/overkiz-client`](https://github.com/tplnet/overkiz-client).
 > It is a **drop-in replacement**: the platform name stays `Tahoma`, so your configuration and your accessories in Apple Home are kept – see [Migrating](#migrating-from-homebridge-tahoma).
@@ -51,10 +51,17 @@ Works with all **Overkiz** based platforms: Somfy TaHoma / TaHoma Switch / Conne
 | `somfy_europe` | Somfy Europe | TaHoma, TaHoma Switch, Connexoon IO, Orange connectivity kit |
 | `somfy_australia` | Somfy Australia | Connexoon RTS and other products in Australia |
 | `somfy_north_america` | Somfy North America | TaHoma and other products in North America |
-| `cozytouch` | Atlantic, Thermor, Sauter | Cozytouch |
-| `flexom` | Bouygues | Flexom |
-| `hi_kumo` | Hitachi | Hi Kumo |
-| `rexel` | Rexel | Energeasy Connect |
+| `cozytouch` | Atlantic, Thermor, Sauter | Cozytouch – *not tested, see below* |
+| `flexom` | Bouygues | Flexom – *not tested, see below* |
+| `hi_kumo` | Hitachi | Hi Kumo – *not tested, see below* |
+| `rexel` | Rexel | Energeasy Connect – *not tested, see below* |
+
+### Future: Somfy TaHoma only
+
+> [!IMPORTANT]
+> This fork is maintained and tested with a **Somfy TaHoma** gateway only. From **version 3.0.0** it will support **Somfy TaHoma only** – local API and Somfy cloud (`local`, `somfy_europe`, `somfy_australia`, `somfy_north_america`). Devices of other brands connected to a TaHoma gateway stay supported.
+>
+> The other services – `cozytouch`, `hi_kumo`, `flexom`, `rexel` – work in version 2.x as in the original plugin, but are **not tested**: bugs and feature requests for them can only be handled if someone helps with testing. If you use one of them, stay on version 2.x (Homebridge UI → plugin → *Manage Version*) or use the original [homebridge-tahoma](https://github.com/dubocr/homebridge-tahoma). The plugin logs a warning at startup for these services.
 
 ## Installation
 

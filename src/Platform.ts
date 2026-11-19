@@ -60,6 +60,12 @@ export class Platform implements DynamicPlatformPlugin {
             'WeatherForecastSensor',
         );
         this.exposeScenarios = config.exposeScenarios;
+        // Only Somfy TaHoma can be tested by the maintainer: announced to be dropped in version 3.0.0
+        if (['cozytouch', 'hi_kumo', 'flexom', 'rexel'].includes(config.service)) {
+            this.log.warn(`The service '${config.service}' is not tested in this fork and will no longer be supported from version 3.0.0 `
+                + '(Somfy TaHoma only: local API and Somfy cloud). Version 2.x keeps working with it. '
+                + 'Details: https://github.com/tplnet/homebridge-tahoma#future-somfy-tahoma-only');
+        }
         // Entries without a device name (e.g. an empty entry added by the settings form) apply to nothing: skip them
         config.devicesConfig?.filter((x) => typeof x?.key === 'string' && x.key.trim() !== '')
             .forEach((x) => this.devicesConfig[x.key.trim()] = x);

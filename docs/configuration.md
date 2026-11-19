@@ -26,7 +26,7 @@ The settings form of the Homebridge UI covers everything described here. This pa
 
 ## Several gateways or accounts
 
-One configuration covers one gateway or cloud account. In the settings form, **+** at the bottom adds another configuration – only needed for a second gateway or an additional cloud account (e.g. Cozytouch next to Somfy).
+One configuration covers one gateway or cloud account. In the settings form, **+** at the bottom adds another configuration – only needed for a second gateway or an additional Somfy account.
 
 - Never add the same gateway twice.
 - Give each configuration its own `name`.

@@ -1,3 +1,10 @@
+## 2.4.5 (2026-11-19)
+
+### Changed
+
+- **Announcement: from version 3.0.0 this plugin supports Somfy TaHoma only** (local API and Somfy cloud). Cozytouch (Atlantic / Thermor / Sauter), Hitachi Hi Kumo, Flexom and Rexel Energeasy keep working in 2.x, but are not tested – the maintainer can only test with a Somfy TaHoma gateway. The plugin logs a warning at startup for these services; the README and the settings form say so as well
+- README: plugin icon at the top (also on npm and in the Homebridge UI)
+
 ## 2.4.4 (2026-11-19)
 
 ### Fixed
