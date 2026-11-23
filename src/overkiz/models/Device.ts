@@ -3,7 +3,9 @@ import { createHash } from 'crypto';
 
 // Namespace for UUIDv5 (RFC 4122, X.500 DN). Do not change: it defines the HomeKit accessory IDs.
 const UUID_NAMESPACE = '6ba7b812-9dad-11d1-80b4-00c04fd430c8';
-const UUID_REGEXP = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// Same check as validate() of the uuid package used before version 3: accessory IDs must not change
+const UUID_REGEXP = new RegExp('^(?:[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}'
+    + '|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$', 'i');
 
 /** Name based UUID version 5 (SHA-1), RFC 4122. */
 export function uuidV5(name: string, namespace = UUID_NAMESPACE): string {

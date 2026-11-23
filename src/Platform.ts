@@ -136,6 +136,19 @@ export class Platform implements DynamicPlatformPlugin {
             const devices = await this.client.getDevices();
             this.log.debug(devices.length + ' devices discovered');
 
+            // Safety stop: if none of the cached accessories matches a device of the gateway, the device IDs have
+            // changed (e.g. switch between cloud and local API) or something is wrong. Creating new accessories
+            // and removing the old ones would make Apple Home lose all rooms, scenes and automations.
+            const cachedUuids = new Set(this.accessories.map((accessory) => accessory.UUID));
+            if (cachedUuids.size > 0 && devices.length > 0 && !devices.some((device) => cachedUuids.has(device.uuid))) {
+                this.log.error(`Safety stop: none of the ${cachedUuids.size} cached accessories matches one of the `
+                    + `${devices.length} devices of the gateway. Nothing is created or removed, so your accessories, rooms and `
+                    + 'automations stay as they are. If you switched between the Somfy cloud and the local API on purpose, '
+                    + 'remove the cached accessories of this bridge in the Homebridge UI (Settings → Remove cached accessories) '
+                    + 'and restart; otherwise please report this with the log.');
+                return;
+            }
+
             // loop over the discovered devices and register each one if it has not already been registered
             for (const device of devices) {
                 if (
@@ -235,7 +248,17 @@ export class Platform implements DynamicPlatformPlugin {
             }
 
             const deleted = this.accessories.filter((accessory) => !uuids.includes(accessory.UUID));
-            this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, deleted);
+            if (deleted.length >= 3 && deleted.length * 2 > this.accessories.length) {
+                // Safety stop: more than half of the accessories would disappear at once - keep them
+                this.log.warn(`Safety stop: ${deleted.length} of ${this.accessories.length} accessories are no longer reported by `
+                    + 'the gateway, they are kept: ' + deleted.map((accessory) => accessory.displayName).join(', ')
+                    + '. If you removed these devices in the TaHoma app on purpose, remove them in the Homebridge UI '
+                    + '(Settings → Remove single cached accessory).');
+            } else if (deleted.length > 0) {
+                this.log.info('Remove accessories no longer reported by the gateway: '
+                    + deleted.map((accessory) => accessory.displayName).join(', '));
+                this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, deleted);
+            }
             this.retryDelay = DEFAULT_RETRY_DELAY;
 
             // Cloud: getDevices() only returns the stored snapshot, which can be stale for changes

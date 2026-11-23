@@ -1,3 +1,14 @@
+## 3.0.0-beta.2 (2026-11-23)
+
+### Fixed
+
+- Accessory IDs: the check whether a device ID of the gateway is already a UUID is now exactly the one of version 2. For an ID that only looks like a UUID, beta.1 would have calculated a different accessory ID. A new test compares the IDs with version 2 (210 cases)
+
+### Added
+
+- **Safety stop for your accessories:** if none of the cached accessories matches a device of the gateway (e.g. after a switch between Somfy cloud and local API), the plugin creates and removes nothing and logs what to do – rooms, scenes and automations in Apple Home stay as they are
+- If more than half of the accessories would disappear at once, they are kept and listed in the log instead of being removed. Single devices removed in the TaHoma app are still removed (with a log line naming them)
+
 ## 3.0.0-beta.1 (2026-11-19)
 
 ### Changed
