@@ -1,3 +1,13 @@
+## 3.0.1 (2026-11-23)
+
+No change in Apple Home or in the settings form – preparation for the "Verified by Homebridge" check.
+
+### Changed
+
+- Settings schema: required fields (name, service, user, password) are listed at object level as JSON Schema expects, instead of `"required": true` on each field
+- `package.json` keyword `supports-hap`: the plugin publishes its accessories via HAP (Apple Home)
+- Security policy: vulnerabilities in the built-in API client are reported in this repository; `@tplnet/overkiz-client` and `homebridge-tahoma-local` are archived
+
 ## 3.0.0 (2026-11-23)
 
 Version 3 concentrates on **Somfy TaHoma** – the only system the maintainer can test – and brings the API client into the plugin. Your accessories keep their IDs: rooms, scenes and automations in Apple Home stay as they are (checked with a real installation of 24 accessories). Tested as 3.0.0-beta.2, see the beta sections below for all details.

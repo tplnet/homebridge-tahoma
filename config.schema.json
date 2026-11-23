@@ -5,11 +5,16 @@
   "headerDisplay": "**Somfy TaHoma only:** version 3 supports the local API and the Somfy cloud. Cozytouch, Hi Kumo, Flexom and Energeasy: use version 2.x.\n\n**Several gateways or accounts:** one configuration per TaHoma gateway or cloud account. With **+** (at the bottom) you add another one – only needed for a second gateway or an additional Somfy account. Never add the same gateway twice. Give each configuration its own name and run each as a separate **child bridge** (Homebridge settings → Bridges): Homebridge does not load the same platform twice in one bridge.",
   "schema": {
     "type": "object",
+    "required": [
+      "name",
+      "service",
+      "user",
+      "password"
+    ],
     "properties": {
       "name": {
         "title": "Name",
         "type": "string",
-        "required": true,
         "default": "TaHoma",
         "description": "Shown in the Homebridge log. Must be unique if you use several configurations."
       },
@@ -42,19 +47,16 @@
               "somfy_north_america"
             ]
           }
-        ],
-        "required": true
+        ]
       },
       "user": {
         "title": "User / gateway",
         "type": "string",
-        "required": true,
         "description": "Local API: gateway PIN (XXXX-XXXX-XXXX) or IP address of the gateway. Cloud: e-mail address of your account."
       },
       "password": {
         "title": "Password / token",
         "type": "string",
-        "required": true,
         "description": "Local API: token generated in the TaHoma app (Developer Mode). Cloud: password of your account."
       },
       "exposeScenarios": {

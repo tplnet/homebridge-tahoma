@@ -31,6 +31,7 @@
   },
   "keywords": [
     "homebridge-plugin",
+    "supports-hap",
     "tahoma",
     "somfy",
     "connexoon"
