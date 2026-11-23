@@ -2,7 +2,7 @@
   "name": "@tplnet/homebridge-tahoma",
   "displayName": "Homebridge Somfy TaHoma (tplnet)",
   "type": "module",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Homebridge plugin for Somfy TaHoma (local API and Somfy cloud). Maintained fork of dubocr/homebridge-tahoma.",
   "author": "Romain DUBOC <dubocr@gmail.com>",
   "license": "Apache-2.0",
