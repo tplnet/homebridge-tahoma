@@ -15,6 +15,7 @@ Maintained fork of dubocr/homebridge-tahoma ("Homebridge Somfy TaHoma (tplnet)")
 - `HAPStatus` comes from `api.hap`, never from a runtime import of `homebridge`.
 - Only Somfy TaHoma services (local API, Somfy cloud); other Overkiz services are rejected with a clear error and cached accessories are kept.
 - Accessory IDs must never change (they carry rooms and automations in Apple Home): the ID calculation matches 2.x exactly (`test/device-uuid.mjs`), and the safety stops in `Platform.ts` (no match between cache and gateway, or more than half would be removed) stay.
+- The platform name stays `Tahoma` (Timo's decision 2026-11-23): cached accessories are bound to it, and a new name would mean setting up all devices, rooms and automations again. Only if the Homebridge verification review asks for it: add a new name and keep `Tahoma` registered as well (as in `@tplnet/homebridge-heos-multiroom-audio`), so existing configurations keep their accessories; `SomfyTaHoma` is taken by another verified plugin. Don't rename without asking Timo.
 - Larger changes are developed on a branch and published as betas (`X.Y.Z-beta.N`, npm dist-tag `beta`), as for 3.0.0. See `docs/releasing.md`.
 
 ## Rules for all tplnet Homebridge projects
