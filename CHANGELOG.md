@@ -20,7 +20,7 @@
 - Clearer messages: wrong token (401), TLS problems, gateway or Somfy cloud not reachable (logged once, recovery as well), rejected cloud login with the time of the next attempt. A missing or invalid gateway / password stops the plugin with a message instead of a crash
 - Somfy cloud: when several requests hit an expired session at the same time, only one new login is made (before: one per request)
 - `gateway` and `token` (names of `homebridge-tahoma-local`) are accepted as aliases for `user` and `password`
-- Readable command labels in the history of the TaHoma app also with the local API, e.g. "Bad - Close 100% - Apple Home" (before: "setClosure.100"); labels are always English
+- Readable command labels also with the local API, e.g. "Bad - Close 100% - Apple Home" (before: "setClosure.100"); labels are always English. The TaHoma app shows them in its history only for commands sent through the Somfy cloud
 - Errors reported to Apple Home use the proper HAP status (no generic error in the Home app)
 - Troubleshooting page lists the new log messages and what to do
 

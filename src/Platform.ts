@@ -317,7 +317,7 @@ export class Platform implements DynamicPlatformPlugin {
     }
 
     /**
-     * Human readable label of a command, e.g. "setClosure.30" -> "Close 30%" (shown in the TaHoma app history).
+     * Human readable label of a command, e.g. "setClosure.30" -> "Close 30%" (with the Somfy cloud shown in the TaHoma app history).
      */
     public translate(label: string): string {
         const path = label.split('.');

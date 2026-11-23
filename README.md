@@ -180,7 +180,7 @@ What is stored or sent:
 - **Credentials** (gateway PIN/IP and token, or account e-mail and password) are kept in Homebridge's `config.json`, like for every Homebridge plugin. The plugin does not store them anywhere else and never writes the token or password to the log.
 - **Accessory cache**: Homebridge stores device names and IDs in its accessory cache.
 - **Log**: operational messages (commands, states, errors) go to the Homebridge log; with `"debug": true` also the requested gateway paths.
-- **Command label**: each command carries a label made of the device name, the command and *"Apple Home"*, shown in the history of the TaHoma app. With the local API it stays on your gateway; with a cloud service it is sent to that service.
+- **Command label**: each command carries a label made of the device name, the command and *"Apple Home"* (e.g. *"Bad - Close 100% - Apple Home"*). With the local API it stays on your gateway; the TaHoma app does not show these commands in its history. With the Somfy cloud it is sent to Somfy and shown in the history of the TaHoma app.
 
 The package has no install scripts, and its runtime dependencies do not send data anywhere either.
 
