@@ -16,7 +16,7 @@ The settings form of the Homebridge UI covers everything described here. This pa
 | `service` | string | `somfy_europe` | `local` or the Somfy cloud of your region: `somfy_europe`, `somfy_australia`, `somfy_north_america` – see [Requirements](../README.md#requirements) |
 | `user` | string | – | **Required.** Local: gateway PIN or IPv4 address. Cloud: account e-mail |
 | `password` | string | – | **Required.** Local: API token. Cloud: account password |
-| `gateway` / `token` | string | – | Aliases for `user` / `password` with the local API (names used by `homebridge-tahoma-local`) |
+| `gateway` / `token` | string | – | Aliases for `user` / `password` with the local API (names used by the former `homebridge-tahoma-local`) |
 | `pollingPeriod` | number (s) | `5` local / `60` cloud | Update interval: how often the plugin asks the gateway for changes made elsewhere (TaHoma app, remote, other systems). Cloud: at least 10, at most 60 |
 | `refreshPeriod` | number (min) | `5` local / `1440` cloud | Full refresh interval, in case a change was missed. Local API: re-reads the states the gateway knows (cheap, no radio traffic). Cloud: asks the gateway to query the devices – allowed only once a day, lower values cause `429 QUOTA_EXCEEDED`. `0` disables it. Devices without feedback (RTS) cannot report their state either way |
 | `tlsInsecure` | boolean | `false` | Local API only: skip the gateway certificate check (by default verified against the [Overkiz root CA](https://ca.overkiz.com/overkiz-root-ca-2048.crt)). Use only if the connection fails with a certificate error |

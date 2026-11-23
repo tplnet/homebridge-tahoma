@@ -18,4 +18,4 @@ Please do **not** open a public issue. Use *Security* → *Report a vulnerabilit
 
 Please include the affected version, a description and, if possible, steps to reproduce. Reports are handled on a best-effort basis (this is a private hobby project, see the disclaimer in the README); there is no guaranteed response time. Once a fix is released, the issue is published as a GitHub security advisory.
 
-Vulnerabilities in the API client belong to [`@tplnet/overkiz-client`](https://github.com/tplnet/overkiz-client/security); issues in Homebridge itself to [homebridge/homebridge](https://github.com/homebridge/homebridge/security).
+Since version 3 the API client is part of this plugin, so vulnerabilities in it are reported here as well; issues in Homebridge itself belong to [homebridge/homebridge](https://github.com/homebridge/homebridge/security).

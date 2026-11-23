@@ -1,10 +1,10 @@
 # @tplnet/homebridge-tahoma
 
-Maintained fork of dubocr/homebridge-tahoma ("Homebridge Somfy TaHoma (tplnet)"), platform name `Tahoma`, drop-in replacement. On branch `3.0` the API client is built in (`src/overkiz/`: local API + Somfy cloud, derived from `homebridge-tahoma-local` and `@tplnet/overkiz-client`); on `master` (2.x) it uses `@tplnet/overkiz-client` through the npm alias `overkiz-client`.
+Maintained fork of dubocr/homebridge-tahoma ("Homebridge Somfy TaHoma (tplnet)"), platform name `Tahoma`, drop-in replacement. Since 3.0.0 it supports Somfy TaHoma only (local API and Somfy cloud) and the API client is built in (`src/overkiz/`, derived from the former `homebridge-tahoma-local` and `@tplnet/overkiz-client`, both archived; the client is deprecated on npm). Detaching the repository from the fork network of dubocr/homebridge-tahoma is requested at GitHub Support (2026-11-23); afterwards the README says "based on dubocr/homebridge-tahoma" instead of "maintained fork", and this description is updated.
 
 ## Commands
 - `npm run lint`, `npm run build`, `npm audit --omit=dev`
-- `npm test` (branch `3.0`) – smoke test against a simulated gateway (`test/smoke.mjs`) and the cloud client against a simulated Somfy cloud (`test/cloud-client.mjs`); run `npm run build` first
+- `npm test` – accessory IDs (`test/device-uuid.mjs`), smoke test against a simulated gateway (`test/smoke.mjs`), gateway outage (`test/outage.mjs`) and the cloud client against a simulated Somfy cloud (`test/cloud-client.mjs`); run `npm run build` first
 - `npm install --no-save homebridge@latest && npm run smoke` – starts Homebridge with the plugin (compatibility check)
 - Preview release notes: `node scripts/release-notes.mjs [version]`
 
@@ -13,14 +13,15 @@ Maintained fork of dubocr/homebridge-tahoma ("Homebridge Somfy TaHoma (tplnet)")
 - Names: keep the current name when the gateway reports a default name such as "IO (5978041)"; names must be valid for Apple Home.
 - `devicesConfig` entries without a device name are ignored (the settings form adds an empty entry by itself).
 - `HAPStatus` comes from `api.hap`, never from a runtime import of `homebridge`.
-- Both plugins (this fork and `homebridge-tahoma-local`) coexist for now; the client stays a separate package.
-- Version 3.0.0 (plan: Somfy TaHoma only – local API and Somfy cloud –, client built in, improvements from `homebridge-tahoma-local`) is developed on the branch `3.0` and published as betas (`3.0.0-beta.N`, npm dist-tag `beta`); `master` stays on 2.x until the release. See `docs/releasing.md` → "Betas and the 3.0 branch".
+- Only Somfy TaHoma services (local API, Somfy cloud); other Overkiz services are rejected with a clear error and cached accessories are kept.
+- Accessory IDs must never change (they carry rooms and automations in Apple Home): the ID calculation matches 2.x exactly (`test/device-uuid.mjs`), and the safety stops in `Platform.ts` (no match between cache and gateway, or more than half would be removed) stay.
+- Larger changes are developed on a branch and published as betas (`X.Y.Z-beta.N`, npm dist-tag `beta`), as for 3.0.0. See `docs/releasing.md`.
 
 ## Rules for all tplnet Homebridge projects
 
-These apply to `@tplnet/homebridge-tahoma`, `@tplnet/overkiz-client`, `homebridge-tahoma-local` and `@tplnet/homebridge-heos-multiroom-audio`. Keep the four projects consistent: a change to the release or check process in one of them goes into all of them. New tplnet projects adopt these rules from the start.
+These apply to `@tplnet/homebridge-tahoma` and `@tplnet/homebridge-heos-multiroom-audio` (`@tplnet/overkiz-client` and `homebridge-tahoma-local` are archived since 2026-11-23). Keep the projects consistent: a change to the release or check process in one of them goes into all of them. New tplnet projects adopt these rules from the start.
 
-Notes that concern several projects (a change to port, a new rule, what still has to be done in another project) are written into this section – in all four `CLAUDE.md` files – not only into a note of a Claude project: every session reads the `CLAUDE.md` of its repository, whichever Claude project it belongs to. When a change in one project still has to be ported to another one, note it here as an open item and remove it once it is done everywhere.
+Notes that concern several projects (a change to port, a new rule, what still has to be done in another project) are written into this section – in the `CLAUDE.md` of both projects – not only into a note of a Claude project: every session reads the `CLAUDE.md` of its repository, whichever Claude project it belongs to. When a change in one project still has to be ported to another one, note it here as an open item and remove it once it is done everywhere.
 
 ### Language and wording
 - Code, comments, README, CHANGELOG and commit messages in English. No German translation of the plugin (exception for now: the German settings form of `@tplnet/homebridge-heos-multiroom-audio`).
@@ -49,9 +50,9 @@ Notes that concern several projects (a change to port, a new rule, what still ha
 
 ### Homebridge UI and log
 - The window *Plugin Logs* (Homebridge UI → *Plugins* → ⋮) only shows log lines that start with the cyan prefix `[<name>]`, where `<name>` is the `name` of the plugin's config entry (without one: the package name, which Homebridge doesn't use for the plugin's lines – the window then stays empty except right after a restart). Every plugin's settings schema therefore has a `name` field with a default, and the plugin logs through the Homebridge logger. Own console output (e.g. a debug console log) uses the same prefix: `` `\x1b[36m[${config.name}]\x1b[39m` ``. Found in `@tplnet/homebridge-heos-multiroom-audio` 1.5.1-beta.8.
-- Open (2026-11-19): check the *Plugin Logs* window in a real Homebridge UI for `@tplnet/homebridge-tahoma` and `homebridge-tahoma-local`. Both schemas already have a required `name` with a default and the plugins don't write to the console directly, so they are probably fine. Remove this item once checked. (`@tplnet/overkiz-client` is a library without settings – not affected.)
+- Open (2026-11-19): check the *Plugin Logs* window in a real Homebridge UI for `@tplnet/homebridge-tahoma`. The schema already has a required `name` with a default and the plugin doesn't write to the console directly, so it is probably fine. Remove this item once checked.
 - Homebridge verification checks (homebridge/plugins, automatic): the settings schema must not use `"required": true/false` on single fields – required fields are listed as `"required": ["a", "b"]` at object level (JSON Schema); `package.json` keywords declare the transport: `supports-hap` for plugins that publish HAP accessories (`supports-matter` only for plugins that register Matter accessories themselves). Found in the verification request of `@tplnet/homebridge-heos-multiroom-audio` (fixed in 1.5.2-beta.1).
-- Open (2026-11-23): `@tplnet/homebridge-tahoma` (4×) and `homebridge-tahoma-local` (3×) still use `"required": true/false` and lack `supports-hap` – port the fix (beta first). Remove this item once done everywhere.
+- Open (2026-11-23): `@tplnet/homebridge-tahoma` still uses `"required": true` (4×) and lacks `supports-hap` – port the fix before the verification request. Remove this item once done.
 
 ### Release process
 1. Write a `## X.Y.Z (YYYY-MM-DD)` section at the top of `CHANGELOG.md` **before** `npm version`. Each entry starts with what changes for the user (Apple Home, Homebridge UI, log), technical details after it. With several entries, group them under `### Added`, `### Changed`, `### Fixed`, `### Security`.
@@ -60,7 +61,6 @@ Notes that concern several projects (a change to port, a new rule, what still ha
 4. The maintainer approves the staged version with his passkey (npmjs.com → Staged Packages, or `npm stage approve <id>`).
 - Never run `npm publish` manually (npm Trusted Publishing is stage-only; a manual publish burns the version number).
 - `release-notes.yml` (Actions → Release notes → tag or `all`) refills existing releases from CHANGELOG.
-- Plugin depending on a new client version: release and approve the client first, then `npm install --prefer-online` in the plugin (otherwise ETARGET from the npm cache).
 
 ### Git and security
 - Commit as `tplnet <tplnet@users.noreply.github.com>`; never put the maintainer's real name or e-mail into commits or files.
