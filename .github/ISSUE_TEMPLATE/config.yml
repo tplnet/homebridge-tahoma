@@ -1,5 +1,14 @@
-blank_issues_enabled: true
+blank_issues_enabled: false
 contact_links:
+  - name: Security vulnerability
+    url: https://github.com/tplnet/homebridge-tahoma/security/advisories/new
+    about: Please report security problems privately, not as a public issue.
+  - name: Troubleshooting
+    url: https://github.com/tplnet/homebridge-tahoma/blob/master/docs/troubleshooting.md
+    about: Common log messages and how to solve them.
+  - name: Cozytouch, Hi Kumo, Flexom, Energeasy
+    url: https://github.com/tplnet/homebridge-tahoma#somfy-tahoma-only-version-3
+    about: Version 3 supports Somfy TaHoma only – for these services use version 2.x or the original homebridge-tahoma.
   - name: Local API (Somfy TaHoma Developer Mode)
     url: https://github.com/Somfy-Developer/Somfy-TaHoma-Developer-Mode
-    about: Activate developer mode and generate a token directly in the TaHoma app
+    about: Activate Developer Mode and generate a token in the TaHoma app.

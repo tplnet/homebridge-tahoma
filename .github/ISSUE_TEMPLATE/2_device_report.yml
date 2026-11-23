@@ -1,0 +1,56 @@
+name: Device not supported or not working correctly
+description: A device of your TaHoma gateway is missing in Apple Home, shown as "not supported" or behaves wrongly.
+labels: [device report]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        To support a device, the commands and states the gateway offers for it are needed. The plugin can log them:
+        add the device in the settings under *Device specific config* (device name as in the log) and switch on *Troubleshooting* → *Debug log*,
+        restart the bridge and copy the lines "Device details", "Commands" and "States" of this device below.
+        Only devices connected to a **Somfy TaHoma** gateway are supported.
+  - type: input
+    id: device
+    attributes:
+      label: Device (brand and model)
+      placeholder: e.g. Somfy Sunea io awning, Velux window
+    validations:
+      required: true
+  - type: input
+    id: type
+    attributes:
+      label: Type from the log
+      description: The line below "Configure device …" at startup, or the "… not supported" message.
+      placeholder: e.g. Awning > PositionableHorizontalAwningUno
+    validations:
+      required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: What happens?
+      options:
+        - Not shown in Apple Home / "not supported" in the log
+        - Shown, but works partly (please describe below)
+        - Shown, but doesn't work
+    validations:
+      required: true
+  - type: textarea
+    id: debug
+    attributes:
+      label: Device debug log
+      description: The lines "Device details", "Commands" and "States" of this device (see above).
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      placeholder: e.g. 3.0.0
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: What works and what doesn't – e.g. position, direction, state after using the remote control.

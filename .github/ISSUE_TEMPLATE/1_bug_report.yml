@@ -1,0 +1,77 @@
+name: Bug report
+description: Something doesn't work as expected.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! Please check [troubleshooting](https://github.com/tplnet/homebridge-tahoma/blob/master/docs/troubleshooting.md) first.
+        This is a private hobby project: reports are handled best effort, without guarantee. The plugin is tested with Somfy TaHoma only.
+        **Security problems:** please don't open an issue, use *Security* → *Report a vulnerability* instead.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, what happened instead?
+    validations:
+      required: true
+  - type: dropdown
+    id: connection
+    attributes:
+      label: Connection
+      options:
+        - Local API (Developer Mode)
+        - Somfy cloud – Europe
+        - Somfy cloud – Australia
+        - Somfy cloud – North America
+    validations:
+      required: true
+  - type: input
+    id: gateway
+    attributes:
+      label: Gateway
+      placeholder: e.g. TaHoma Switch, TaHoma (2nd generation), Connexoon
+  - type: input
+    id: devices
+    attributes:
+      label: Affected device(s)
+      description: The type shown in the log at startup below "Configure device …", e.g. "RollerShutter > PositionableRollerShutter".
+      placeholder: e.g. Awning > PositionableHorizontalAwningUno
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      placeholder: e.g. 3.0.0
+    validations:
+      required: true
+  - type: input
+    id: homebridge-version
+    attributes:
+      label: Homebridge and Homebridge UI version
+      placeholder: e.g. Homebridge 2.5.0, Homebridge UI 5.30.1
+    validations:
+      required: true
+  - type: input
+    id: node-version
+    attributes:
+      label: Node.js version
+      placeholder: e.g. 22.12.0
+  - type: input
+    id: system
+    attributes:
+      label: System
+      placeholder: e.g. Synology DSM 7, Raspberry Pi OS, Docker
+  - type: textarea
+    id: log
+    attributes:
+      label: Log
+      description: |
+        The log around the time of the problem, ideally with `"debug": true` in the plugin settings (*Advanced settings* → *Debug log*).
+        Remove IP addresses, gateway PIN, token, e-mail or names you don't want to share.
+      render: text
+  - type: textarea
+    id: config
+    attributes:
+      label: Plugin configuration
+      description: The JSON of this plugin's settings (Homebridge UI → *Plugins* → ⋮ → *JSON Config*), if relevant. **Remove the password / token.**
+      render: json
