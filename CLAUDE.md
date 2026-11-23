@@ -51,7 +51,6 @@ Notes that concern several projects (a change to port, a new rule, what still ha
 
 ### Homebridge UI and log
 - The window *Plugin Logs* (Homebridge UI → *Plugins* → ⋮) only shows log lines that start with the cyan prefix `[<name>]`, where `<name>` is the `name` of the plugin's config entry (without one: the package name, which Homebridge doesn't use for the plugin's lines – the window then stays empty except right after a restart). Every plugin's settings schema therefore has a `name` field with a default, and the plugin logs through the Homebridge logger. Own console output (e.g. a debug console log) uses the same prefix: `` `\x1b[36m[${config.name}]\x1b[39m` ``. Found in `@tplnet/homebridge-heos-multiroom-audio` 1.5.1-beta.8.
-- Open (2026-11-19): check the *Plugin Logs* window in a real Homebridge UI for `@tplnet/homebridge-tahoma`. The schema already has a required `name` with a default and the plugin doesn't write to the console directly, so it is probably fine. Remove this item once checked.
 - Homebridge verification checks (homebridge/plugins, automatic): the settings schema must not use `"required": true/false` on single fields – required fields are listed as `"required": ["a", "b"]` at object level (JSON Schema); `package.json` keywords declare the transport: `supports-hap` for plugins that publish HAP accessories (`supports-matter` only for plugins that register Matter accessories themselves). Found in the verification request of `@tplnet/homebridge-heos-multiroom-audio` (fixed in 1.5.2-beta.1).
 
 ### Release process
