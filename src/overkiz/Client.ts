@@ -28,6 +28,8 @@ interface Api extends EventEmitter {
     post(path: string, data?: unknown, retry?: boolean): Promise<any>;
     delete(path: string, retry?: boolean): Promise<any>;
     put(path: string, data?: unknown, retry?: boolean): Promise<any>;
+    /** True while the gateway / cloud is known to be unreachable (already logged once) */
+    readonly unreachable: boolean;
 }
 
 // Cloud API: POST /setup/devices/states/refresh and GET /setup/devices are limited to 1 call per day and session
@@ -247,7 +249,7 @@ export default class Client extends EventEmitter {
                     this.log.info('Event listener expired (gateway restarted?), registering a new one');
                     this.listenerId = null;
                 } else {
-                    this.log.error('Polling error -', error);
+                    this.logError('Polling error -', error);
                     if (typeof error === 'string' && (error.includes('400') || error.includes('401') || error.includes('404'))) {
                         // Listener not registered anymore (400/404) or token rejected (401)
                         this.listenerId = null;
@@ -262,9 +264,18 @@ export default class Client extends EventEmitter {
                 this.listenerId = data.id;
                 this.pollingErrorLockDuration = 10;
             } catch (error) {
-                this.log.error('Event listener registration error -', error);
+                this.logError('Event listener registration error -', error);
                 await this.backOff();
             }
+        }
+    }
+
+    /** Errors during a known outage (already logged once by the API client) go to the debug log only */
+    private logError(message: string, error: unknown) {
+        if (this.api.unreachable) {
+            this.log.debug(message, error);
+        } else {
+            this.log.error(message, error);
         }
     }
 

@@ -151,6 +151,11 @@ export default class LocalApiClient extends EventEmitter {
         }
     }
 
+    /** True while the gateway is known to be unreachable (the outage has already been logged) */
+    public get unreachable(): boolean {
+        return this.outage;
+    }
+
     public get(path: string, retry = true) {
         return this.call('GET', path, undefined, retry);
     }

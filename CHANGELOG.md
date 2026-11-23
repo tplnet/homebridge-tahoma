@@ -1,3 +1,30 @@
+## 3.0.0 (2026-11-23)
+
+Version 3 concentrates on **Somfy TaHoma** – the only system the maintainer can test – and brings the API client into the plugin. Your accessories keep their IDs: rooms, scenes and automations in Apple Home stay as they are (checked with a real installation of 24 accessories). Tested as 3.0.0-beta.2, see the beta sections below for all details.
+
+### Changed
+
+- **Somfy TaHoma only:** local API and Somfy cloud (Europe, Australia, North America). Atlantic / Thermor / Sauter Cozytouch, Hitachi Hi Kumo, Flexom and Rexel Energeasy are no longer supported – stay on version 2.x for them. With one of these services the plugin logs an error and does nothing, so the accessories are kept for a downgrade
+- **API client built in:** `@tplnet/overkiz-client` is no longer needed; 4 instead of about 50 runtime packages
+- Clearer log messages: wrong token, TLS problems, gateway or Somfy cloud not reachable – an outage is logged once as a warning (details only in the debug log) and the recovery once as info; rejected cloud login with the time of the next attempt
+- Readable command labels also with the local API (e.g. "Bad - Close 100% - Apple Home"), always English
+- `gateway` and `token` are accepted as aliases for `user` and `password` (local API)
+- README: short explanation of what Homebridge is
+
+### Added
+
+- **Safety stops for your accessories:** nothing is created or removed if no cached accessory matches a device of the gateway, and accessories are kept if more than half would disappear at once
+- Tests with a simulated gateway (commands, position tolerance, outage and recovery) and a simulated Somfy cloud (login, expired session, rate limit), and a test that accessory IDs are identical to version 2
+
+### Fixed
+
+- Somfy cloud: several requests hitting an expired session at the same time caused several logins – now only one
+- Errors reported to Apple Home use the proper HAP status
+
+### Removed
+
+- Hitachi heat pumps (Hi Kumo) and Honeywell evohome device types, the undocumented `proxy` option, French command labels and the setup location request (cloud)
+
 ## 3.0.0-beta.2 (2026-11-23)
 
 ### Fixed

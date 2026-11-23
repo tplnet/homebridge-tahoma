@@ -15,6 +15,8 @@ Package: [`@tplnet/homebridge-tahoma`](https://www.npmjs.com/package/@tplnet/hom
 
 Control your **Somfy TaHoma** devices – roller shutters, blinds, awnings, gates, garage doors, lights, heating, alarms, sensors – with **Apple Home** and Siri, through [Homebridge](https://homebridge.io).
 
+*What is Homebridge?* A free, open-source program that runs at home (e.g. on a Raspberry Pi or a NAS) and brings devices without built-in Apple Home support into the Home app. This plugin connects it to your Somfy TaHoma gateway.
+
 For **Somfy TaHoma** / TaHoma Switch / Connexoon – via the **local API** of your TaHoma gateway or via the Somfy cloud. Other Overkiz based services (Cozytouch, Hi Kumo, Flexom, Energeasy): see [Somfy TaHoma only](#somfy-tahoma-only-version-3).
 
 > This is a maintained fork of [dubocr/homebridge-tahoma](https://github.com/dubocr/homebridge-tahoma) by Romain Duboc. Since version 3 the API client is built in (derived from [dubocr/overkiz-client](https://github.com/dubocr/overkiz-client)); it uses only Node.js built-ins and one small package for the gateway search.
