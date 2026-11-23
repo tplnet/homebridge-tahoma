@@ -3,7 +3,7 @@
   "displayName": "Homebridge Somfy TaHoma (tplnet)",
   "type": "module",
   "version": "3.0.1",
-  "description": "Homebridge plugin for Somfy TaHoma (local API and Somfy cloud). Maintained fork of dubocr/homebridge-tahoma.",
+  "description": "Homebridge plugin for Somfy TaHoma (local API and Somfy cloud). Based on dubocr/homebridge-tahoma.",
   "author": "Romain DUBOC <dubocr@gmail.com>",
   "license": "Apache-2.0",
   "repository": {
@@ -54,7 +54,7 @@
     "fsevents@2.3.3": true
   },
   "contributors": [
-    "tplnet (fork maintainer)"
+    "tplnet (maintainer)"
   ],
   "publishConfig": {
     "access": "public",

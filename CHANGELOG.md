@@ -1,3 +1,7 @@
+## 3.0.2 (2026-11-23)
+
+No change in Apple Home or in the settings form. README and package description: the plugin is now an independent project based on dubocr/homebridge-tahoma (credits and license unchanged).
+
 ## 3.0.1 (2026-11-23)
 
 No change in Apple Home or in the settings form – preparation for the "Verified by Homebridge" check.

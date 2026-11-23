@@ -1,6 +1,6 @@
 # @tplnet/homebridge-tahoma
 
-Maintained fork of dubocr/homebridge-tahoma ("Homebridge Somfy TaHoma (tplnet)"), platform name `Tahoma`, drop-in replacement. Since 3.0.0 it supports Somfy TaHoma only (local API and Somfy cloud) and the API client is built in (`src/overkiz/`, derived from the former `homebridge-tahoma-local` and `@tplnet/overkiz-client`, both archived; the client is deprecated on npm). Detaching the repository from the fork network of dubocr/homebridge-tahoma is requested at GitHub Support (2026-11-23); afterwards the README says "based on dubocr/homebridge-tahoma" instead of "maintained fork", and this description is updated.
+Based on dubocr/homebridge-tahoma, maintained independently ("Homebridge Somfy TaHoma (tplnet)"; the GitHub repository is no longer shown as a fork), platform name `Tahoma`, drop-in replacement. Since 3.0.0 it supports Somfy TaHoma only (local API and Somfy cloud) and the API client is built in (`src/overkiz/`, derived from the former `homebridge-tahoma-local` and `@tplnet/overkiz-client`, both archived; the client is deprecated on npm).
 
 ## Commands
 - `npm run lint`, `npm run build`, `npm audit --omit=dev`
