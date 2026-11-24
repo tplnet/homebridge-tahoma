@@ -2,6 +2,7 @@ import { API, Characteristic, DynamicPlatformPlugin, Logger, PlatformAccessory, 
 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 import { parseNameList } from './configList.js';
+import { planRemoval } from './removalPlan.js';
 import { Client, Execution, Action } from './overkiz/index.js';
 import defaultTranslations from './lang/en.json' with { type: 'json' };
 import Mapper from './Mapper.js';
@@ -134,6 +135,8 @@ export class Platform implements DynamicPlatformPlugin {
     async discoverDevices() {
         try {
             const uuids = Array<string>();
+            // devices and scenarios hidden on purpose by the configuration
+            const hidden = new Set<string>();
             const renamed = Array<PlatformAccessory>();
             const devices = await this.client.getDevices();
             this.log.debug(devices.length + ' devices discovered');
@@ -161,6 +164,7 @@ export class Platform implements DynamicPlatformPlugin {
                     this.exclude.includes(hapName(device.label)) ||
                     this.exclude.includes(device.protocol)
                 ) {
+                    hidden.add(device.uuid);
                     continue;
                 }
 
@@ -212,13 +216,17 @@ export class Platform implements DynamicPlatformPlugin {
                 });
 
                 for (const actionGroup of actionGroups) {
-                    if (this.exclude.includes(actionGroup.label) || this.exclude.includes(hapName(actionGroup.label, 'Scenario')) ||
-                        actionGroup.label.startsWith('internal:') || actionGroup.label === '') {
+                    if (this.exclude.includes(actionGroup.label) || this.exclude.includes(hapName(actionGroup.label, 'Scenario'))) {
+                        hidden.add(actionGroup.oid);
+                        continue;
+                    }
+                    if (actionGroup.label.startsWith('internal:') || actionGroup.label === '') {
                         continue;
                     }
                     // A list of names exposes only these scenarios
                     if (Array.isArray(this.exposeScenarios) && !this.exposeScenarios.includes(actionGroup.label) &&
                         !this.exposeScenarios.includes(hapName(actionGroup.label, 'Scenario'))) {
+                        hidden.add(actionGroup.oid);
                         continue;
                     }
 
@@ -249,17 +257,23 @@ export class Platform implements DynamicPlatformPlugin {
                 this.api.updatePlatformAccessories(renamed);
             }
 
-            const deleted = this.accessories.filter((accessory) => !uuids.includes(accessory.UUID));
-            if (deleted.length >= 3 && deleted.length * 2 > this.accessories.length) {
+            // Hidden on purpose (exclude, scenario list): removed. Missing from the gateway: safety stop applies.
+            const plan = planRemoval(this.accessories, new Set(uuids), hidden);
+            if (plan.hidden.length > 0) {
+                this.log.info('Remove hidden accessories (Hidden devices and scenarios): '
+                    + plan.hidden.map((accessory) => accessory.displayName).join(', '));
+                this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, plan.hidden);
+            }
+            if (plan.keepMissing) {
                 // Safety stop: more than half of the accessories would disappear at once - keep them
-                this.log.warn(`Safety stop: ${deleted.length} of ${this.accessories.length} accessories are no longer reported by `
-                    + 'the gateway, they are kept: ' + deleted.map((accessory) => accessory.displayName).join(', ')
+                this.log.warn(`Safety stop: ${plan.missing.length} of ${this.accessories.length} accessories are no longer `
+                    + 'reported by the gateway, they are kept: ' + plan.missing.map((accessory) => accessory.displayName).join(', ')
                     + '. If you removed these devices in the TaHoma app on purpose, remove them in the Homebridge UI '
                     + '(Settings → Remove single cached accessory).');
-            } else if (deleted.length > 0) {
+            } else if (plan.missing.length > 0) {
                 this.log.info('Remove accessories no longer reported by the gateway: '
-                    + deleted.map((accessory) => accessory.displayName).join(', '));
-                this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, deleted);
+                    + plan.missing.map((accessory) => accessory.displayName).join(', '));
+                this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, plan.missing);
             }
             this.retryDelay = DEFAULT_RETRY_DELAY;
 

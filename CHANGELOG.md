@@ -1,3 +1,9 @@
+## 3.0.3-beta.2 (2026-11-24)
+
+### Fixed
+
+- **Hidden devices and scenarios:** devices hidden with `exclude` (or scenarios left out of an `exposeScenarios` list) are removed from Apple Home again, even when they are many. Before, hiding more than half of the devices triggered the safety stop ("no longer reported by the gateway"), so they stayed. The safety stop still protects against devices that suddenly disappear from the gateway
+
 ## 3.0.3-beta.1 (2026-11-24)
 
 ### Changed
