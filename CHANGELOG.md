@@ -1,3 +1,18 @@
+## 3.0.3 (2026-11-24)
+
+Tested as 3.0.3-beta.1 and beta.2 in a separate test Homebridge.
+
+### Changed
+
+- **Hidden devices and scenarios:** an entry with several names separated by commas, with or without quotes (e.g. `"Garage", "Flur"`), now hides each of them – before, it only matched a device with exactly that text. The settings form explains that each name gets its own entry. The same applies to a list of scenario names in `exposeScenarios`
+- Documentation: after deleting a configuration or its child bridge, remove its devices with *Remove Bridge Accessories* in the Homebridge settings
+- README, Privacy: all Somfy cloud server addresses listed per region (Europe, Australia, North America), with a link to the code where they are fixed
+- npm keywords: `somfy-tahoma`, `overkiz`, `apple-home`
+
+### Fixed
+
+- **Hidden devices and scenarios:** devices hidden on purpose are removed from Apple Home even when they are many. Before, hiding more than half of the devices triggered the safety stop ("no longer reported by the gateway"), so they stayed. The safety stop still protects against devices that suddenly disappear from the gateway
+
 ## 3.0.3-beta.2 (2026-11-24)
 
 ### Fixed
