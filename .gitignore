@@ -120,3 +120,6 @@ dist
 .yarn/build-state.yml
 .pnp.*
 .DS_Store
+
+# original icon files (the README uses docs/images/icon.png)
+icon/
