@@ -175,7 +175,11 @@ Network connections depend on the selected `service`:
 | Service | Connections |
 |---|---|
 | `local` | Only to **your TaHoma gateway in your home network** (HTTPS, port 8443), plus an mDNS lookup in the local network when the gateway is configured by its PIN. **Nothing leaves your network.** |
-| Somfy cloud | Only to the Somfy servers of the selected region, e.g. `ha101-1.overkiz.com` for Somfy Europe. |
+| `somfy_europe` | Only to the Somfy cloud server `https://ha101-1.overkiz.com` (HTTPS) |
+| `somfy_australia` | Only to the Somfy cloud server `https://ha201-1.overkiz.com` (HTTPS) |
+| `somfy_north_america` | Only to the Somfy cloud server `https://ha401-1.overkiz.com` (HTTPS) |
+
+The addresses are fixed in the code ([`src/overkiz/CloudApiClient.ts`](https://github.com/tplnet/homebridge-tahoma/blob/master/src/overkiz/CloudApiClient.ts)); all requests go to the Overkiz end-user API under `/enduser-mobile-web/`. The certificate of the local gateway is checked against the Overkiz root CA, which is built into the plugin – it is not downloaded.
 
 What is stored or sent:
 

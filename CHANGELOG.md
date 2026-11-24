@@ -1,3 +1,12 @@
+## 3.0.3-beta.1 (2026-11-24)
+
+### Changed
+
+- **Hidden devices and scenarios:** an entry with several names separated by commas, with or without quotes (e.g. `"io", "rts"`), now hides each of them – before, it only matched a device with exactly that text. The settings form explains that each name gets its own entry. The same applies to a list of scenario names in `exposeScenarios`
+- Documentation: after deleting a configuration or its child bridge, remove its devices with *Remove Bridge Accessories* in the Homebridge settings
+- README, Privacy: all Somfy cloud server addresses listed per region (Europe, Australia, North America), with a link to the code where they are fixed
+- npm keywords: `somfy-tahoma`, `overkiz`, `apple-home`
+
 ## 3.0.2 (2026-11-23)
 
 No change in Apple Home or in the settings form. README and package description: the plugin is now an independent project based on dubocr/homebridge-tahoma (credits and license unchanged).

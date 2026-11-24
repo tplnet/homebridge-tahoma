@@ -4,7 +4,7 @@ Based on dubocr/homebridge-tahoma, maintained independently ("Homebridge Somfy T
 
 ## Commands
 - `npm run lint`, `npm run build`, `npm audit --omit=dev`
-- `npm test` – accessory IDs (`test/device-uuid.mjs`), smoke test against a simulated gateway (`test/smoke.mjs`), gateway outage (`test/outage.mjs`) and the cloud client against a simulated Somfy cloud (`test/cloud-client.mjs`); run `npm run build` first
+- `npm test` – accessory IDs (`test/device-uuid.mjs`), name lists in the configuration (`test/config-list.mjs`), smoke test against a simulated gateway (`test/smoke.mjs`), gateway outage (`test/outage.mjs`) and the cloud client against a simulated Somfy cloud (`test/cloud-client.mjs`); run `npm run build` first
 - `npm install --no-save homebridge@latest && npm run smoke` – starts Homebridge with the plugin (compatibility check)
 - Preview release notes: `node scripts/release-notes.mjs [version]`
 

@@ -20,7 +20,7 @@ The settings form of the Homebridge UI covers everything described here. This pa
 | `pollingPeriod` | number (s) | `5` local / `60` cloud | Update interval: how often the plugin asks the gateway for changes made elsewhere (TaHoma app, remote, other systems). Cloud: at least 10, at most 60 |
 | `refreshPeriod` | number (min) | `5` local / `1440` cloud | Full refresh interval, in case a change was missed. Local API: re-reads the states the gateway knows (cheap, no radio traffic). Cloud: asks the gateway to query the devices – allowed only once a day, lower values cause `429 QUOTA_EXCEEDED`. `0` disables it. Devices without feedback (RTS) cannot report their state either way |
 | `tlsInsecure` | boolean | `false` | Local API only: skip the gateway certificate check (by default verified against the [Overkiz root CA](https://ca.overkiz.com/overkiz-root-ca-2048.crt)). Use only if the connection fails with a certificate error |
-| `exclude` | string[] | `[]` | Devices and scenarios to hide: name as shown in the log at startup (e.g. `Garage` from the line `Configure device Garage`) or in the TaHoma app, a type from the line below it (UI class or widget, e.g. `"PositionableHorizontalAwning"`) or a radio protocol (`"io"`, `"rts"`). A hidden device is removed from Apple Home, including its room and automations |
+| `exclude` | string[] | `[]` | Devices and scenarios to hide: name as shown in the log at startup (e.g. `Garage` from the line `Configure device Garage`) or in the TaHoma app, a type from the line below it (UI class or widget, e.g. `"PositionableHorizontalAwning"`) or a radio protocol (`"io"`, `"rts"`). One name per entry; several names separated by commas in one entry work as well. A hidden device is removed from Apple Home, including its room and automations |
 | `exposeScenarios` | boolean / string[] | `false` | Cloud only (the local API offers no scenarios): show TaHoma scenarios as switches in Apple Home. `true` for all, or a list of scenario names for only these (JSON config) |
 | `devicesConfig` | object[] | `[]` | Per-device settings, see [below](#device-specific-configuration) |
 | `debug` | boolean | `false` | Detailed log for all devices (commands, states, requests to the gateway) – for troubleshooting. For a single device see [`devicesConfig`](#all-devices) |
@@ -33,6 +33,7 @@ One configuration covers one gateway or cloud account. In the settings form, **+
 - Never add the same gateway twice.
 - Give each configuration its own `name`.
 - Run each configuration as a separate **child bridge** (Homebridge settings → *Bridges*). Homebridge does not load the same platform twice in one bridge – it reports that the platform "is configured multiple times".
+- After deleting a configuration (or its child bridge), remove its devices with Homebridge settings → *Remove Bridge Accessories* (choose that bridge only). Otherwise they stay in Homebridge's accessory cache and are still listed.
 
 ## Device specific configuration
 

@@ -70,7 +70,7 @@
         "items": {
           "type": "string",
           "title": "Name or type",
-          "description": "Device or scenario name as shown in the Homebridge log at startup (e.g. \"Garage\" from the line \"Configure device Garage\") or in the TaHoma app – or a type from the line below it (e.g. \"PositionableHorizontalAwning\", \"Light\") or a radio protocol (\"io\", \"rts\")."
+          "description": "Device or scenario name as shown in the Homebridge log at startup (e.g. \"Garage\" from the line \"Configure device Garage\") or in the TaHoma app – or a type from the line below it (e.g. \"PositionableHorizontalAwning\", \"Light\") or a radio protocol (\"io\", \"rts\"). One name per entry – use the button below for each further one."
         }
       },
       "pollingPeriod": {
@@ -216,7 +216,7 @@
           "key": "exclude",
           "type": "array",
           "title": "Hidden devices and scenarios",
-          "description": "One entry per device, scenario or type to hide.",
+          "description": "One entry per device, scenario or type to hide – add each with the button below (e.g. one entry \"io\", another one \"rts\"). Several names separated by commas in one entry work as well.",
           "items": [
             "exclude[]"
           ],
