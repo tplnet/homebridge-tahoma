@@ -3,6 +3,7 @@ import { API, Characteristic, DynamicPlatformPlugin, Logger, PlatformAccessory, 
 import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 import { parseNameList } from './configList.js';
 import { planRemoval } from './removalPlan.js';
+import { DEFAULT_EXCLUDE } from './defaultExclude.js';
 import { Client, Execution, Action } from './overkiz/index.js';
 import defaultTranslations from './lang/en.json' with { type: 'json' };
 import Mapper from './Mapper.js';
@@ -60,12 +61,7 @@ export class Platform implements DynamicPlatformPlugin {
         // Entries may contain the name from the TaHoma app or the name shown in Apple Home / the log
         // One name per entry; "a, b" and quotes are accepted as well (see configList.ts)
         this.exclude = parseNameList(config.exclude);
-        this.exclude.push('Pod', 'ConfigurationComponent', 'NetworkComponent', 'ProtocolGateway', 'ConsumptionSensor',
-            'OnOffHeatingSystem', 'Wifi', 'RemoteController',
-            // AtlanticElectricalTowelDryer bad sensors
-            'io:LightIOSystemDeviceSensor', 'io:RelativeHumidityIOSystemDeviceSensor', 'enocean:EnOceanHumidityComfortSensor',
-            'WeatherForecastSensor',
-        );
+        this.exclude.push(...DEFAULT_EXCLUDE);
         this.exposeScenarios = Array.isArray(config.exposeScenarios) ? parseNameList(config.exposeScenarios) : config.exposeScenarios;
         // Entries without a device name (e.g. an empty entry added by the settings form) apply to nothing: skip them
         config.devicesConfig?.filter((x) => typeof x?.key === 'string' && x.key.trim() !== '')

@@ -75,3 +75,74 @@ export function findGateway(pin: string, timeout: number, debug: (...args) => vo
         query();
     });
 }
+
+export interface FoundGateway {
+    pin: string;
+    ip: string;
+}
+
+/**
+ * Find all TaHoma gateways with Developer Mode in the local network (settings page).
+ * Listens for `timeout` ms and returns every gateway that announced its PIN and IPv4 address.
+ */
+export function discoverGateways(timeout: number): Promise<FoundGateway[]> {
+    const mdns = multicastDns();
+    const pins = new Map<string, string>();     // service instance -> gateway_pin
+    const targets = new Map<string, string>();  // service instance -> host name
+    const addresses = new Map<string, string>(); // host name -> IPv4
+    const asked = new Set<string>();
+
+    return new Promise((resolve, reject) => {
+        let done = false;
+        const finish = (error?: Error) => {
+            if (done) {
+                return;
+            }
+            done = true;
+            clearTimeout(timer);
+            clearInterval(retry);
+            mdns.destroy();
+            if (error) {
+                reject(error);
+                return;
+            }
+            const found = new Map<string, FoundGateway>();
+            for (const [instance, host] of targets) {
+                const ip = addresses.get(host);
+                const pin = pins.get(instance) ?? instance.match(/\d{4}-\d{4}-\d{4}/)?.[0];
+                if (ip && pin) {
+                    found.set(pin, { pin, ip });
+                }
+            }
+            resolve([...found.values()]);
+        };
+
+        mdns.on('response', (response) => {
+            for (const record of [...response.answers, ...(response.additionals ?? [])]) {
+                if (record.type === 'PTR' && record.name === SERVICE && !targets.has(String(record.data))) {
+                    mdns.query([{ name: String(record.data), type: 'SRV' }, { name: String(record.data), type: 'TXT' }]);
+                } else if (record.type === 'TXT') {
+                    const entries = (Array.isArray(record.data) ? record.data : [record.data]).map((x) => x.toString());
+                    const entry = entries.find((x) => x.startsWith('gateway_pin='));
+                    if (entry) {
+                        pins.set(record.name, entry.substring('gateway_pin='.length));
+                    }
+                } else if (record.type === 'SRV') {
+                    targets.set(record.name, record.data.target);
+                    if (!asked.has(record.data.target)) {
+                        asked.add(record.data.target);
+                        mdns.query(record.data.target, 'A');
+                    }
+                } else if (record.type === 'A' && IPV4_REGEXP.test(String(record.data))) {
+                    addresses.set(record.name, String(record.data));
+                }
+            }
+        });
+        mdns.on('error', (error) => finish(new Error('mDNS error: ' + error.message)));
+
+        const query = () => mdns.query(SERVICE, 'PTR');
+        const retry = setInterval(query, 2000);
+        const timer = setTimeout(() => finish(), timeout);
+        query();
+    });
+}

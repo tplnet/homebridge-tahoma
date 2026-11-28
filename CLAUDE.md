@@ -4,7 +4,7 @@ Based on dubocr/homebridge-tahoma, maintained independently ("Homebridge Somfy T
 
 ## Commands
 - `npm run lint`, `npm run build`, `npm audit --omit=dev`
-- `npm test` – accessory IDs (`test/device-uuid.mjs`), name lists in the configuration (`test/config-list.mjs`), removal and safety stop (`test/removal-plan.mjs`), smoke test against a simulated gateway (`test/smoke.mjs`), gateway outage (`test/outage.mjs`) and the cloud client against a simulated Somfy cloud (`test/cloud-client.mjs`); run `npm run build` first
+- `npm test` – accessory IDs (`test/device-uuid.mjs`), name lists in the configuration (`test/config-list.mjs`), removal and safety stop (`test/removal-plan.mjs`), settings page helpers and connection test (`test/settings-page.mjs`, `test/setup-check.mjs`), smoke test against a simulated gateway (`test/smoke.mjs`), gateway outage (`test/outage.mjs`) and the cloud client against a simulated Somfy cloud (`test/cloud-client.mjs`); run `npm run build` first
 - `npm install --no-save homebridge@latest && npm run smoke` – starts Homebridge with the plugin (compatibility check)
 - Preview release notes: `node scripts/release-notes.mjs [version]`
 
@@ -15,6 +15,7 @@ Based on dubocr/homebridge-tahoma, maintained independently ("Homebridge Somfy T
 - `HAPStatus` comes from `api.hap`, never from a runtime import of `homebridge`.
 - Only Somfy TaHoma services (local API, Somfy cloud); other Overkiz services are rejected with a clear error and cached accessories are kept.
 - Accessory IDs must never change (they carry rooms and automations in Apple Home): the ID calculation matches 2.x exactly (`test/device-uuid.mjs`), and the safety stops in `Platform.ts` (no match between cache and gateway, or more than half would be removed) stay.
+- Settings page (`homebridge-ui/`, `customUi`): tab *Settings* = the schema form, tab *Connection* = gateway search (mDNS) and connection test (`src/setupCheck.ts`). It acts only on a button click; with the Somfy cloud it only logs in and out (never reads `/setup/devices`, limited per day) and pauses 60 s after a rejected login. Page helpers without DOM access live in `homebridge-ui/public/setup.js` (tested). Text in English only. Built in stages as 3.1.0 betas (stage 1: search + test; stage 2: device list with checkboxes for `exclude`).
 - The platform name stays `Tahoma` (Timo's decision 2026-11-23): cached accessories are bound to it, and a new name would mean setting up all devices, rooms and automations again. Only if the Homebridge verification review asks for it: add a new name and keep `Tahoma` registered as well (as in `@tplnet/homebridge-heos-multiroom-audio`), so existing configurations keep their accessories; `SomfyTaHoma` is taken by another verified plugin. Don't rename without asking Timo.
 - Larger changes are developed on a branch and published as betas (`X.Y.Z-beta.N`, npm dist-tag `beta`), as for 3.0.0. See `docs/releasing.md`.
 

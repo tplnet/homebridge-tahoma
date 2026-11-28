@@ -156,6 +156,11 @@ export default class LocalApiClient extends EventEmitter {
         return this.outage;
     }
 
+    /** Closes the kept-alive connections (used by the settings page after a connection test) */
+    public close() {
+        this.agent.destroy();
+    }
+
     public get(path: string, retry = true) {
         return this.call('GET', path, undefined, retry);
     }

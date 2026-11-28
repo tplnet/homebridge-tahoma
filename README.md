@@ -137,6 +137,8 @@ The local API talks directly to your gateway in your home network: no cloud acco
 4. Accept the terms and **generate a token**. Copy it right away – it is only shown once.
 5. Configure the plugin with `"service": "local"`, the PIN as `user` and the token as `password`.
 
+In the Homebridge UI, the tab **Connection** of the plugin settings finds the gateways in your network and tests the connection with your token before you save.
+
 The gateway is found in your network by its PIN (mDNS). If Homebridge runs in another network or VLAN, use the gateway's IP address as `user` (preferably with a fixed DHCP lease).
 
 > **Note:** cloud and local API use different device identifiers. Switching an existing setup from cloud to local makes Apple Home see all accessories as new ones – rooms and automations have to be set up again.
@@ -180,6 +182,8 @@ Network connections depend on the selected `service`:
 | `somfy_north_america` | Only to the Somfy cloud server `https://ha401-1.overkiz.com` (HTTPS) |
 
 The addresses are fixed in the code ([`src/overkiz/CloudApiClient.ts`](https://github.com/tplnet/homebridge-tahoma/blob/master/src/overkiz/CloudApiClient.ts)); all requests go to the Overkiz end-user API under `/enduser-mobile-web/`. The certificate of the local gateway is checked against the Overkiz root CA, which is built into the plugin – it is not downloaded.
+
+The **Connection** tab of the plugin settings uses the same connections, only when you click *Search* or *Test connection*.
 
 What is stored or sent:
 

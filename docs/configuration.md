@@ -4,6 +4,8 @@
 
 The settings form of the Homebridge UI covers everything described here. This page is the reference for all options and for editing `config.json` directly.
 
+The plugin settings have two tabs: **Settings** (the form) and **Connection**. *Connection* searches your network for TaHoma gateways with Developer Mode (choose one to use its IP address or PIN) and tests the connection of a configuration – with the local API it also lists the devices the plugin will show. With the Somfy cloud the test logs in once and out again (the device list is not read, Somfy limits it per day); after a rejected login it pauses for a minute so that your account is not locked. The page only acts when you click a button and connects only to your gateway or the Somfy cloud server of the selected region.
+
 - [All options](#all-options)
 - [Several gateways or accounts](#several-gateways-or-accounts)
 - [Device specific configuration](#device-specific-configuration)

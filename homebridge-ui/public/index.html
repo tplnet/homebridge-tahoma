@@ -1,0 +1,246 @@
+<style>
+  #tahoma-setup .table td,
+  #tahoma-setup .table th {
+    vertical-align: middle;
+  }
+  #tahoma-setup .sub {
+    display: block;
+    font-size: 0.8em;
+    opacity: 0.7;
+  }
+</style>
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button id="tahoma-tab-settings" class="nav-link active" type="button" role="tab">Settings</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button id="tahoma-tab-setup" class="nav-link" type="button" role="tab">Connection</button>
+  </li>
+</ul>
+
+<div id="tahoma-setup" class="d-none">
+  <div class="card mb-3">
+    <div class="card-body">
+      <div id="tahoma-config-select-row" class="mb-3 d-none">
+        <label for="tahoma-config-select" class="form-label">Configuration</label>
+        <select id="tahoma-config-select" class="form-select"></select>
+      </div>
+      <p class="mb-1"><strong>Access:</strong> <span id="tahoma-service"></span></p>
+      <p class="mb-3"><strong id="tahoma-user-label">Gateway:</strong> <span id="tahoma-user"></span></p>
+      <p id="tahoma-missing" class="small text-muted d-none"></p>
+      <button id="tahoma-test" type="button" class="btn btn-primary">Test connection</button>
+      <span id="tahoma-testing" class="text-muted small ms-2 d-none">
+        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Testing …
+      </span>
+      <div id="tahoma-result" class="alert mt-3 mb-0 d-none" role="alert"></div>
+      <details id="tahoma-devices" class="mt-2 d-none">
+        <summary class="small">Devices</summary>
+        <div class="table-responsive">
+          <table class="table table-sm mb-0">
+            <thead><tr><th>Name</th><th>Type</th><th>Protocol</th></tr></thead>
+            <tbody id="tahoma-device-rows"></tbody>
+          </table>
+        </div>
+      </details>
+      <p class="small text-muted mt-3 mb-0">
+        The test uses the settings as they are in the form, also before saving. With the Somfy cloud it logs in once and
+        out again; after a rejected login the test pauses for a minute, so that your account is not locked.
+      </p>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="d-flex align-items-center mb-2">
+        <strong class="me-auto">TaHoma gateways in your network</strong>
+        <span id="tahoma-searching" class="text-muted small me-2 d-none">
+          <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Searching …
+        </span>
+        <button id="tahoma-search" type="button" class="btn btn-sm btn-outline-primary">Search</button>
+      </div>
+      <p class="small text-muted">
+        Finds gateways with Developer Mode enabled (TaHoma app: tap the gateway PIN 7 times). Choose one to use the local
+        API – the IP address is recommended; reserve it in your router so that it does not change.
+      </p>
+      <div id="tahoma-search-error" class="alert alert-warning small d-none" role="alert"></div>
+      <div class="table-responsive">
+        <table class="table table-sm mb-0">
+          <thead><tr><th>Gateway PIN</th><th>IP address</th><th></th></tr></thead>
+          <tbody id="tahoma-gateway-rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  import { PLATFORM, DEFAULT_NAME, serviceOf, serviceLabel, configLabel, applyGateway, missingSettings, describeResult } from './setup.js';
+
+  const $ = (id) => document.getElementById(id);
+  let pluginConfig = await homebridge.getPluginConfig();
+  let selected = 0;
+  let gateways = [];
+  let searched = false;
+
+  if (pluginConfig.length === 0) {
+    // not configured yet: start with the defaults, like the schema form does
+    pluginConfig = [{ platform: PLATFORM, name: DEFAULT_NAME, service: 'local' }];
+    await homebridge.updatePluginConfig(pluginConfig);
+  }
+
+  const current = () => pluginConfig[selected] ?? pluginConfig[0];
+
+  function showTab(tab) {
+    const setup = tab === 'setup';
+    $('tahoma-tab-settings').classList.toggle('active', !setup);
+    $('tahoma-tab-setup').classList.toggle('active', setup);
+    $('tahoma-setup').classList.toggle('d-none', !setup);
+    if (setup) {
+      homebridge.hideSchemaForm();
+      render();
+    } else {
+      // shown again, the schema form picks up changes made on the connection tab
+      homebridge.showSchemaForm();
+    }
+  }
+
+  function cell(text, sub) {
+    const td = document.createElement('td');
+    td.textContent = text ?? '';
+    if (sub) {
+      const span = document.createElement('span');
+      span.className = 'sub';
+      span.textContent = sub;
+      td.append(span);
+    }
+    return td;
+  }
+
+  function render() {
+    if (selected >= pluginConfig.length) {
+      selected = 0;
+    }
+    const select = $('tahoma-config-select');
+    $('tahoma-config-select-row').classList.toggle('d-none', pluginConfig.length < 2);
+    select.replaceChildren(...pluginConfig.map((config, index) => {
+      const option = document.createElement('option');
+      option.value = String(index);
+      option.textContent = configLabel(config, index);
+      option.selected = index === selected;
+      return option;
+    }));
+
+    const config = current();
+    const local = serviceOf(config) === 'local';
+    $('tahoma-service').textContent = serviceLabel(config);
+    $('tahoma-user-label').textContent = local ? 'Gateway:' : 'Somfy account:';
+    $('tahoma-user').textContent = config.user ?? config.gateway ?? '–';
+    const missing = missingSettings(config);
+    $('tahoma-missing').textContent = missing ?? '';
+    $('tahoma-missing').classList.toggle('d-none', !missing);
+    $('tahoma-test').disabled = Boolean(missing);
+
+    const rows = $('tahoma-gateway-rows');
+    rows.replaceChildren();
+    if (gateways.length === 0) {
+      const tr = document.createElement('tr');
+      const td = cell(searched ? 'No gateway found. Check that Developer Mode is enabled and that Homebridge is in the same network – or enter the IP address in the settings.' : '');
+      td.colSpan = 3;
+      td.className = 'text-muted small';
+      tr.append(td);
+      rows.append(tr);
+    }
+    for (const gateway of gateways) {
+      const tr = document.createElement('tr');
+      const inUse = local && [gateway.ip, gateway.pin].includes(config.user ?? config.gateway);
+      tr.append(cell(gateway.pin), cell(gateway.ip, inUse ? 'used by this configuration' : undefined));
+      const actions = document.createElement('td');
+      actions.className = 'text-end';
+      for (const [use, label, style] of [['ip', 'Use IP address', 'btn-primary'], ['pin', 'Use PIN', 'btn-outline-secondary']]) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'btn btn-sm ms-1 ' + style;
+        button.textContent = label;
+        button.addEventListener('click', () => useGateway(gateway, use));
+        actions.append(button);
+      }
+      tr.append(actions);
+      rows.append(tr);
+    }
+  }
+
+  async function useGateway(gateway, use) {
+    pluginConfig = pluginConfig.map((config, index) => index === selected ? applyGateway(config, gateway, use) : config);
+    await homebridge.updatePluginConfig(pluginConfig);
+    homebridge.toast.success('Gateway ' + gateway.pin + ' set for "' + (current().name ?? DEFAULT_NAME) + '". Enter the token in the settings if needed, then save.');
+    render();
+  }
+
+  async function search() {
+    $('tahoma-search').disabled = true;
+    $('tahoma-searching').classList.remove('d-none');
+    $('tahoma-search-error').classList.add('d-none');
+    try {
+      gateways = await homebridge.request('/discover');
+    } catch (error) {
+      gateways = [];
+      $('tahoma-search-error').textContent = 'Search failed: ' + (error?.message ?? error);
+      $('tahoma-search-error').classList.remove('d-none');
+    }
+    searched = true;
+    $('tahoma-search').disabled = false;
+    $('tahoma-searching').classList.add('d-none');
+    render();
+  }
+
+  async function test() {
+    $('tahoma-test').disabled = true;
+    $('tahoma-testing').classList.remove('d-none');
+    $('tahoma-result').classList.add('d-none');
+    $('tahoma-devices').classList.add('d-none');
+    let result;
+    try {
+      result = await homebridge.request('/test', current());
+    } catch (error) {
+      result = { ok: false, message: error?.message ?? String(error) };
+    }
+    const text = describeResult(result);
+    const box = $('tahoma-result');
+    box.className = 'alert mt-3 mb-0 alert-' + text.kind;
+    const title = document.createElement('strong');
+    title.textContent = text.title;
+    box.replaceChildren(title, ...text.lines.map((line) => {
+      const div = document.createElement('div');
+      div.className = 'small';
+      div.textContent = line;
+      return div;
+    }));
+    if (result?.devices?.length) {
+      $('tahoma-device-rows').replaceChildren(...result.devices.map((device) => {
+        const tr = document.createElement('tr');
+        tr.append(cell(device.label), cell(device.uiClass, device.widget), cell(device.protocol));
+        return tr;
+      }));
+      $('tahoma-devices').classList.remove('d-none');
+    }
+    $('tahoma-testing').classList.add('d-none');
+    $('tahoma-test').disabled = Boolean(missingSettings(current()));
+  }
+
+  homebridge.addEventListener('configChanged', ({ data }) => {
+    pluginConfig = data;
+    render();
+  });
+  $('tahoma-config-select').addEventListener('change', (event) => {
+    selected = Number(event.target.value);
+    $('tahoma-result').classList.add('d-none');
+    $('tahoma-devices').classList.add('d-none');
+    render();
+  });
+  $('tahoma-test').addEventListener('click', test);
+  $('tahoma-search').addEventListener('click', search);
+  $('tahoma-tab-settings').addEventListener('click', () => showTab('settings'));
+  $('tahoma-tab-setup').addEventListener('click', () => showTab('setup'));
+  showTab('settings');
+</script>

@@ -25,7 +25,7 @@
     "build": "rimraf ./dist && tsc",
     "prepublishOnly": "npm run lint && npm run build",
     "smoke": "node scripts/homebridge-smoke.mjs",
-    "test": "node test/device-uuid.mjs && node test/config-list.mjs && node test/removal-plan.mjs && node test/smoke.mjs && node test/outage.mjs && node test/cloud-client.mjs",
+    "test": "node test/device-uuid.mjs && node test/config-list.mjs && node test/removal-plan.mjs && node test/settings-page.mjs && node test/setup-check.mjs && node test/smoke.mjs && node test/outage.mjs && node test/cloud-client.mjs",
     "version": "node scripts/release-notes.mjs > /dev/null",
     "malware": "node scripts/malware-scan.mjs"
   },
@@ -67,6 +67,7 @@
     "minimatch": "^11.0.8"
   },
   "dependencies": {
+    "@homebridge/plugin-ui-utils": "^2.3.1",
     "multicast-dns": "^7.2.5"
   }
 }

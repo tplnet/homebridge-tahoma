@@ -1,6 +1,7 @@
 {
   "pluginAlias": "Tahoma",
   "pluginType": "platform",
+  "customUi": true,
   "singular": false,
   "headerDisplay": "**Somfy TaHoma only:** version 3 supports the local API and the Somfy cloud. Cozytouch, Hi Kumo, Flexom and Energeasy: use version 2.x.\n\n**Several gateways or accounts:** one configuration per TaHoma gateway or cloud account. With **+** (at the bottom) you add another one – only needed for a second gateway or an additional Somfy account. Never add the same gateway twice. Give each configuration its own name and run each as a separate **child bridge** (Homebridge settings → Bridges): Homebridge does not load the same platform twice in one bridge.",
   "schema": {

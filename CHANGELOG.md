@@ -1,3 +1,10 @@
+## 3.1.0-beta.1 (2026-11-28)
+
+### Added
+
+- **Settings page with a Connection tab** (Homebridge UI): searches your network for TaHoma gateways with Developer Mode and sets the chosen one (IP address or PIN) in the configuration, and tests the connection before you save – with the local API it also shows the API version and the devices the plugin will add to Apple Home. With the Somfy cloud it tests the login only (logs in and out again) and pauses after a rejected login, so that the account is not locked. The usual settings form is the first tab, unchanged
+- New runtime dependency `@homebridge/plugin-ui-utils` (Homebridge's library for plugin settings pages, no further dependencies)
+
 ## 3.0.3 (2026-11-24)
 
 Tested as 3.0.3-beta.1 and beta.2 in a separate test Homebridge.
