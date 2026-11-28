@@ -2,8 +2,8 @@
   "pluginAlias": "Tahoma",
   "pluginType": "platform",
   "customUi": true,
-  "singular": false,
-  "headerDisplay": "**Somfy TaHoma only:** version 3 supports the local API and the Somfy cloud. Cozytouch, Hi Kumo, Flexom and Energeasy: use version 2.x.\n\n**Several gateways or accounts:** one configuration per TaHoma gateway or cloud account. With **+** (at the bottom) you add another one – only needed for a second gateway or an additional Somfy account. Never add the same gateway twice. Give each configuration its own name and run each as a separate **child bridge** (Homebridge settings → Bridges): Homebridge does not load the same platform twice in one bridge.",
+  "singular": true,
+  "headerDisplay": "**Somfy TaHoma only:** version 3 supports the local API and the Somfy cloud. Cozytouch, Hi Kumo, Flexom and Energeasy: use version 2.x.\n\n**Tabs:** *Settings* is this form. *Connection* searches your network for TaHoma gateways and tests the connection before you save.\n\n**Several gateways (local API):** TaHoma can use up to three gateways in one installation. Add the further ones under *Additional gateways* – all devices then appear in this one bridge. With the Somfy cloud your account already includes all gateways. Two separate Somfy accounts: add a second configuration in the JSON editor and run it as its own child bridge.",
   "schema": {
     "type": "object",
     "required": [
@@ -59,6 +59,26 @@
         "title": "Password / token",
         "type": "string",
         "description": "Local API: token generated in the TaHoma app (Developer Mode). Cloud: password of your account."
+      },
+      "additionalGateways": {
+        "title": "Additional gateways (local API only)",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "gateway": {
+              "title": "Gateway PIN or IP address",
+              "type": "string",
+              "placeholder": "192.168.1.11",
+              "description": "Another TaHoma gateway of the same installation (TaHoma 2.8: up to three). Use the Connection tab to find it."
+            },
+            "token": {
+              "title": "Token",
+              "type": "string",
+              "description": "Token generated for this gateway in the TaHoma app (Developer Mode)."
+            }
+          }
+        }
       },
       "exposeScenarios": {
         "title": "Scenarios as switches (cloud only)",
@@ -205,6 +225,22 @@
     "service",
     "user",
     "password",
+    {
+      "key": "additionalGateways",
+      "type": "array",
+      "title": "Additional gateways (local API only)",
+      "description": "Only if your installation has more than one TaHoma gateway (TaHoma 2.8: up to three). All devices appear in this bridge.",
+      "expandable": true,
+      "expanded": false,
+      "condition": {
+        "functionBody": "return model.service === 'local';"
+      },
+      "buttonText": "Add gateway",
+      "items": [
+        "additionalGateways[].gateway",
+        "additionalGateways[].token"
+      ]
+    },
     {
       "type": "fieldset",
       "title": "Devices and scenarios",

@@ -121,7 +121,7 @@ Then add the platform to your `config.json` (see [Configuration](#configuration)
 
 ### More options
 
-The most important options are `service`, `user` and `password`. All other options – update intervals, hidden devices, scenarios, settings for single devices, several gateways – are described in **[docs/configuration.md](https://github.com/tplnet/homebridge-tahoma/blob/master/docs/configuration.md)**. The settings form of the Homebridge UI explains them as well.
+The most important options are `service`, `user` and `password`. All other options – update intervals, hidden devices, scenarios, settings for single devices, several gateways of one installation (TaHoma 2.8) – are described in **[docs/configuration.md](https://github.com/tplnet/homebridge-tahoma/blob/master/docs/configuration.md)**. The settings form of the Homebridge UI explains them as well.
 
 - **Beta versions:** bigger changes (such as version 3.0.0) are published as a beta first – how to try one: [Beta versions](https://github.com/tplnet/homebridge-tahoma/blob/master/docs/configuration.md#beta-versions).
 

@@ -19,6 +19,7 @@ The plugin settings have two tabs: **Settings** (the form) and **Connection**. *
 | `user` | string | – | **Required.** Local: gateway PIN or IPv4 address. Cloud: account e-mail |
 | `password` | string | – | **Required.** Local: API token. Cloud: account password |
 | `gateway` / `token` | string | – | Aliases for `user` / `password` with the local API (names used by the former `homebridge-tahoma-local`) |
+| `additionalGateways` | object[] | `[]` | Local API only: further gateways of the same installation, each with `gateway` (PIN or IPv4 address) and `token` – see [below](#several-gateways-or-accounts) |
 | `pollingPeriod` | number (s) | `5` local / `60` cloud | Update interval: how often the plugin asks the gateway for changes made elsewhere (TaHoma app, remote, other systems). Cloud: at least 10, at most 60 |
 | `refreshPeriod` | number (min) | `5` local / `1440` cloud | Full refresh interval, in case a change was missed. Local API: re-reads the states the gateway knows (cheap, no radio traffic). Cloud: asks the gateway to query the devices – allowed only once a day, lower values cause `429 QUOTA_EXCEEDED`. `0` disables it. Devices without feedback (RTS) cannot report their state either way |
 | `tlsInsecure` | boolean | `false` | Local API only: skip the gateway certificate check (by default verified against the [Overkiz root CA](https://ca.overkiz.com/overkiz-root-ca-2048.crt)). Use only if the connection fails with a certificate error |
@@ -30,10 +31,29 @@ The plugin settings have two tabs: **Settings** (the form) and **Connection**. *
 
 ## Several gateways or accounts
 
-One configuration covers one gateway or cloud account. In the settings form, **+** at the bottom adds another configuration – only needed for a second gateway or an additional Somfy account.
+**Several gateways in one installation (local API).** Since TaHoma 2.8 an installation can use up to three gateways, e.g. to close radio gaps in a large house. Add the further gateways under *Additional gateways* (settings form) – each with its PIN or IP address and its own token from the TaHoma app. The *Connection* tab finds them in your network (*Add as further gateway*) and tests all of them. All devices then appear in the same bridge:
 
-- Never add the same gateway twice.
-- Give each configuration its own `name`.
+```json
+{
+  "platform": "Tahoma",
+  "name": "TaHoma",
+  "service": "local",
+  "user": "192.168.1.10",
+  "password": "<token of the first gateway>",
+  "additionalGateways": [
+    { "gateway": "192.168.1.11", "token": "<token of the second gateway>" }
+  ]
+}
+```
+
+- Commands go to the gateway of each device. A device reported by several gateways appears only once.
+- If one gateway does not answer, its devices stay as they are (nothing is removed) and the plugin tries again; the others keep working.
+- The first gateway stays in `user` / `password`, so an existing configuration and its accessories are kept when you add a gateway.
+- With the **Somfy cloud** this is not needed: your account already includes all gateways of the installation, `additionalGateways` is ignored.
+
+**Two separate Somfy accounts** (e.g. two homes) need two configurations. The settings form manages one; add the second one in the JSON editor of the Homebridge UI (*Plugins* → *TaHoma* → ⋮ → *JSON Config*):
+
+- Give each configuration its own `name`, and never use the same gateway twice.
 - Run each configuration as a separate **child bridge** (Homebridge settings → *Bridges*). Homebridge does not load the same platform twice in one bridge – it reports that the platform "is configured multiple times".
 - After deleting a configuration (or its child bridge), remove its devices with Homebridge settings → *Remove Bridge Accessories* (choose that bridge only). Otherwise they stay in Homebridge's accessory cache and are still listed.
 

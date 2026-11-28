@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const { testConnection } = await import(path.join(root, 'dist/setupCheck.js'));
+const { testConnection, testInstallation } = await import(path.join(root, 'dist/setupCheck.js'));
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'tahoma-setup-check-'));
 execFileSync('openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-days', '1', '-subj', '/CN=localhost',
     '-keyout', path.join(tmp, 'key.pem'), '-out', path.join(tmp, 'cert.pem')], { stdio: 'ignore' });
@@ -51,6 +51,24 @@ await check('cloud: missing password is reported without a login', async () => {
     const result = await testConnection({ service: 'somfy_europe', user: 'a@example.com' });
     assert.equal(result.ok, false);
     assert.match(result.message, /password/);
+});
+
+await check('installation: both gateways tested, a device reported by both counted once', async () => {
+    const result = await testInstallation({ service: 'local', user: '127.0.0.1', password: 'testtoken', tlsInsecure: true,
+        additionalGateways: [{ gateway: '127.0.0.2', token: 'testtoken' }, { gateway: '127.0.0.2', token: 'testtoken' }] });
+    assert.deepEqual(result.gateways.map((g) => [g.label, g.ok]), [['Gateway 127.0.0.1', true], ['Gateway 127.0.0.2', true]]);
+    assert.deepEqual(result.devices.map((d) => d.label), ['Büro kl.', 'Licht', 'Licht 2']);
+});
+await check('installation: one gateway failing is reported for that gateway', async () => {
+    const result = await testInstallation({ service: 'local', user: '127.0.0.1', password: 'testtoken', tlsInsecure: true,
+        additionalGateways: [{ gateway: '127.0.0.2', token: 'wrong' }] });
+    assert.equal(result.gateways[0].ok, true);
+    assert.equal(result.gateways[1].ok, false);
+});
+await check('installation with the cloud: additional gateways are not used', async () => {
+    const result = await testInstallation({ service: 'somfy_europe', user: 'a@example.com', additionalGateways: [{ gateway: '127.0.0.2' }] });
+    assert.equal(result.gateways.length, 1);
+    assert.equal(result.devices, undefined);
 });
 
 gateway.kill('SIGTERM');

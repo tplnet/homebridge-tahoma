@@ -233,7 +233,7 @@ export default abstract class Mapper {
         if (defer) {
             await this.delay(defer * 1000);
         }
-        await this.platform.client.refreshDeviceStates(this.device.deviceURL);
+        await this.platform.clientFor(this.device.deviceURL).refreshDeviceStates(this.device.deviceURL);
     }
 
     /**
@@ -306,11 +306,11 @@ export default abstract class Mapper {
     }
 
     get isIdle() {
-        return this.inFlight === 0 && !this.platform.client.hasExecution(this.executionId);
+        return this.inFlight === 0 && !this.platform.clientFor(this.device.deviceURL).hasExecution(this.executionId);
     }
 
     async cancelExecution() {
-        await this.platform.client.cancelExecution(this.executionId);
+        await this.platform.clientFor(this.device.deviceURL).cancelExecution(this.executionId);
     }
 
     /**

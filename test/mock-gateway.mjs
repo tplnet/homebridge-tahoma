@@ -13,7 +13,16 @@ const devices = [
   { deviceURL: 'internal://1234-5678-9012/pod/0', label: 'Box', controllableName: 'internal:PodV3Component',
     definition: { type: 'PROTOCOL_GATEWAY', uiClass: 'Pod', widgetName: 'Pod', commands: [] }, states: [] },
 ];
-let events = []; let execN = 0; let listenerExpired = false;
+// Second gateway (test/multi-gateway.mjs): requests to 127.0.0.2 see another box with its own device
+// and one device of the first box again (as a gateway that shows the whole installation might do)
+const devices2 = [
+  devices[1],
+  { deviceURL: 'io://2222-3333-4444/333', label: 'Licht 2', controllableName: 'io:OnOffIOComponent',
+    definition: { type: 'ACTUATOR', uiClass: 'OnOff', widgetName: 'StatefulOnOff', commands: [{commandName:'on',nparams:0},{commandName:'off',nparams:0}] },
+    states: [{ name: 'core:OnOffState', type: 3, value: 'off' }] },
+];
+const queues = {};
+let execN = 0; let listenerExpired = false;
 // Minimal stand-in for the local API of a TaHoma gateway (used by test/smoke.mjs).
 // Usage: node mock-gateway.mjs <key.pem> <cert.pem> [port]
 const [keyFile, certFile, port = '8443'] = process.argv.slice(2);
@@ -21,13 +30,16 @@ const log = (...a) => process.stdout.write(a.join(' ') + '\n');
 https.createServer({ key: fs.readFileSync(keyFile), cert: fs.readFileSync(certFile) }, (req, res) => {
   let body = ''; req.on('data', c => body += c); req.on('end', () => {
     const url = req.url.replace(base, '');
+    const second = String(req.socket.localAddress).endsWith('127.0.0.2');
+    const boxDevices = second ? devices2 : devices;
+    const events = (queues[second ? 2 : 1] ??= []);
     if (!url.endsWith('/fetch')) {
-      log(req.method, url, body);
+      log(req.method, url, body, second ? '@127.0.0.2' : '');
     }
     const send = (code, obj) => { res.writeHead(code, {'Content-Type':'application/json'}); res.end(JSON.stringify(obj)); };
     if (req.headers.authorization !== 'Bearer ' + TOKEN) return send(401, { error: 'Not authenticated', errorCode: 'RESOURCE_ACCESS_DENIED' });
     if (url === '/apiVersion') return send(200, { protocolVersion: '2026.1.4-1' });
-    if (url === '/setup/devices') return send(200, devices);
+    if (url === '/setup/devices') return send(200, boxDevices);
     if (url === '/events/register') return send(200, { id: 'listener-1' });
     if (url === '/test/expire-listener' && req.method === 'POST') {
       // Test hook: simulate a gateway restart (event listeners are gone)
@@ -38,9 +50,9 @@ https.createServer({ key: fs.readFileSync(keyFile), cert: fs.readFileSync(certFi
       listenerExpired = false;
       return send(400, { error: 'No registered event listener', errorCode: 'UNSPECIFIED_ERROR' });
     }
-    if (url === '/events/listener-1/fetch') { const e = events; events = []; return send(200, e); }
+    if (url === '/events/listener-1/fetch') { const e = events.splice(0); return send(200, e); }
     const m = url.match(/^\/setup\/devices\/(.+)\/states$/);
-    if (m) { const d = devices.find(d => d.deviceURL === decodeURIComponent(m[1])); return d ? send(200, d.states) : send(404, {}); }
+    if (m) { const d = boxDevices.find(d => d.deviceURL === decodeURIComponent(m[1])); return d ? send(200, d.states) : send(404, {}); }
     if (url === '/test/state' && req.method === 'POST') {
       // Test hook: simulate a change made outside Apple Home (remote control, TaHoma app)
       const { deviceURL, name, value } = JSON.parse(body);
@@ -56,7 +68,7 @@ https.createServer({ key: fs.readFileSync(keyFile), cert: fs.readFileSync(certFi
       setTimeout(() => {
         events.push({ name: 'ExecutionStateChangedEvent', execId, newState: 'IN_PROGRESS', timeToNextState: 1 });
         for (const a of exec.actions) for (const c of a.commands) {
-          const d = devices.find(d => d.deviceURL === a.deviceURL);
+          const d = boxDevices.find(d => d.deviceURL === a.deviceURL);
           if (c.name === 'setClosure') {
             // Like many Somfy motors: the end position is reported slightly off (+1 %)
             const reported = Math.min(100, c.parameters[0] + 1);

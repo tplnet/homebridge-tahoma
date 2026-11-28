@@ -4,7 +4,7 @@ import { PLATFORM_NAME, PLUGIN_NAME } from './settings.js';
 import { parseNameList } from './configList.js';
 import { planRemoval } from './removalPlan.js';
 import { DEFAULT_EXCLUDE } from './defaultExclude.js';
-import { Client, Execution, Action } from './overkiz/index.js';
+import { Client, Device, Execution, Action } from './overkiz/index.js';
 import defaultTranslations from './lang/en.json' with { type: 'json' };
 import Mapper from './Mapper.js';
 import SceneMapper from './SceneMapper.js';
@@ -34,13 +34,20 @@ export const SOMFY_SERVICES = ['local', 'somfy_europe', 'somfy_australia', 'somf
 export class Platform implements DynamicPlatformPlugin {
     // this is used to track restored cached accessories
     private readonly accessories: PlatformAccessory[] = [];
+    /** Client of the first gateway (also used for the scenarios of the Somfy cloud) */
     public readonly client!: Client;
+    /** One client per gateway: the first one and the additional gateways (local API) */
+    private readonly clients: Client[] = [];
+    private readonly gatewayLabels: string[] = [];
+    /** Gateway client of each device, by deviceURL */
+    private readonly clientByURL = new Map<string, Client>();
 
     private readonly exclude: Array<string>;
     private readonly exposeScenarios: boolean | Array<string>;
     public readonly devicesConfig: Array<unknown> = [];
 
-    private executionPromise;
+    /** Commands collected within 100 ms, one execution per gateway */
+    private readonly executionPromises = new Map<Client, any>();
     private retryDelay = DEFAULT_RETRY_DELAY;
     // UUIDs already mapped: a discovery retry after a partial failure must not build them twice
     // (that would attach duplicate state listeners)
@@ -85,21 +92,47 @@ export class Platform implements DynamicPlatformPlugin {
                 + 'or the original homebridge-tahoma. The plugin does nothing until then.');
             return;
         }
+        const clientConfig = (user: string, password: string) => ({
+            service,
+            user,
+            password,
+            tlsInsecure: config['tlsInsecure'],
+            pollingPeriod: config['pollingPeriod'],
+            execPollingPeriod: config['execPollingPeriod'],
+            refreshPeriod: config['refreshPeriod'],
+        });
         try {
-            this.client = new Client(logger, {
-                service,
-                // gateway / token (names of homebridge-tahoma-local) are accepted as aliases for the local API
-                user: config['user'] ?? config['gateway'],
-                password: config['password'] ?? config['token'],
-                tlsInsecure: config['tlsInsecure'],
-                pollingPeriod: config['pollingPeriod'],
-                execPollingPeriod: config['execPollingPeriod'],
-                refreshPeriod: config['refreshPeriod'],
-            });
+            // gateway / token (names of homebridge-tahoma-local) are accepted as aliases for the local API
+            const user = config['user'] ?? config['gateway'];
+            (this as { client: Client }).client = new Client(logger, clientConfig(user, config['password'] ?? config['token']));
+            this.clients.push(this.client);
+            this.gatewayLabels.push(service === 'local' ? 'Gateway ' + user : 'Somfy cloud');
         } catch (error: any) {
             // e.g. missing credentials or an invalid gateway PIN / IP address: a clear message instead of a crash
             this.log.error((error?.message ?? String(error)) + ' – the plugin does nothing until the configuration is fixed.');
             return;
+        }
+        // Further gateways of the same installation (TaHoma 2.8: up to three boxes), local API only
+        const additional = Array.isArray(config['additionalGateways']) ? config['additionalGateways']
+            .filter((entry) => typeof entry?.gateway === 'string' && entry.gateway.trim() !== '') : [];
+        if (additional.length > 0 && service !== 'local') {
+            this.log.warn('additionalGateways is only used with the local API – with the Somfy cloud your account already '
+                + 'includes all gateways of the installation. The entries are ignored.');
+        } else {
+            for (const entry of additional) {
+                const gateway = entry.gateway.trim();
+                if (this.gatewayLabels.includes('Gateway ' + gateway)) {
+                    this.log.warn('Gateway ' + gateway + ' is configured twice – the second entry is ignored.');
+                    continue;
+                }
+                try {
+                    this.clients.push(new Client(logger, clientConfig(gateway, String(entry.token ?? '').trim())));
+                    this.gatewayLabels.push('Gateway ' + gateway);
+                } catch (error: any) {
+                    this.log.error('Additional gateway ' + gateway + ': ' + (error?.message ?? String(error))
+                        + ' – this gateway is skipped.');
+                }
+            }
         }
 
         // When this event is fired it means Homebridge has restored all cached accessories from disk.
@@ -134,8 +167,39 @@ export class Platform implements DynamicPlatformPlugin {
             // devices and scenarios hidden on purpose by the configuration
             const hidden = new Set<string>();
             const renamed = Array<PlatformAccessory>();
-            const devices = await this.client.getDevices();
+            // Devices of all gateways; a gateway that does not answer keeps its accessories (nothing is removed)
+            const results = await Promise.all(this.clients.map((client, index) => client.getDevices()
+                .then((list) => ({ client, index, list, error: undefined as unknown }))
+                .catch((error) => ({ client, index, list: [] as Device[], error }))));
+            const failed = results.filter((result) => result.error !== undefined);
+            if (failed.length === results.length) {
+                throw failed[0].error;
+            }
+            for (const result of failed) {
+                this.log.warn(this.gatewayLabels[result.index] + ': ' + (result.error?.message ?? String(result.error))
+                    + ' – its devices stay as they are until it answers again.');
+            }
+            const incomplete = failed.length > 0;
+            const devices = Array<Device>();
+            const seen = new Set<string>();
+            for (const result of results) {
+                for (const device of result.list) {
+                    if (seen.has(device.uuid)) {
+                        // e.g. a gateway that shows the devices of the whole installation
+                        this.log.debug(`Device ${device.label} is reported by several gateways – using the first one`);
+                        continue;
+                    }
+                    seen.add(device.uuid);
+                    this.clientByURL.set(device.deviceURL, result.client);
+                    devices.push(device);
+                }
+            }
             this.log.debug(devices.length + ' devices discovered');
+            if (incomplete) {
+                // try again later for the gateways that did not answer
+                setTimeout(this.discoverDevices.bind(this), this.retryDelay * 1000);
+                this.retryDelay = Math.min(this.retryDelay * 2, MAX_RETRY_DELAY);
+            }
 
             // Safety stop: if none of the cached accessories matches a device of the gateway, the device IDs have
             // changed (e.g. switch between cloud and local API) or something is wrong. Creating new accessories
@@ -254,13 +318,16 @@ export class Platform implements DynamicPlatformPlugin {
             }
 
             // Hidden on purpose (exclude, scenario list): removed. Missing from the gateway: safety stop applies.
-            const plan = planRemoval(this.accessories, new Set(uuids), hidden);
+            const plan = planRemoval(this.accessories, new Set(uuids), hidden, incomplete);
             if (plan.hidden.length > 0) {
                 this.log.info('Remove hidden accessories (Hidden devices and scenarios): '
                     + plan.hidden.map((accessory) => accessory.displayName).join(', '));
                 this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, plan.hidden);
             }
-            if (plan.keepMissing) {
+            if (plan.keepMissing && incomplete) {
+                this.log.debug('Kept while a gateway does not answer: '
+                    + plan.missing.map((accessory) => accessory.displayName).join(', '));
+            } else if (plan.keepMissing) {
                 // Safety stop: more than half of the accessories would disappear at once - keep them
                 this.log.warn(`Safety stop: ${plan.missing.length} of ${this.accessories.length} accessories are no longer `
                     + 'reported by the gateway, they are kept: ' + plan.missing.map((accessory) => accessory.displayName).join(', ')
@@ -271,7 +338,9 @@ export class Platform implements DynamicPlatformPlugin {
                     + plan.missing.map((accessory) => accessory.displayName).join(', '));
                 this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, plan.missing);
             }
-            this.retryDelay = DEFAULT_RETRY_DELAY;
+            if (!incomplete) {
+                this.retryDelay = DEFAULT_RETRY_DELAY;
+            }
 
             // Cloud: getDevices() only returns the stored snapshot, which can be stale for changes
             // made outside HomeKit. Refresh once now (fresh session, within the 1/day limit) instead
@@ -305,27 +374,33 @@ export class Platform implements DynamicPlatformPlugin {
         action: The action to execute
     */
     public executeAction(label: string, action: Action, highPriority = false, standalone = false) {
+        const client = this.clientFor(action.deviceURL);
         if (standalone) {
             // Run action in standalone execution
-            return this.client.execute(highPriority ? 'apply/highPriority' : 'apply', new Execution(label + ' - Apple Home', action));
-        } else {
-            if (this.executionPromise) {
-                this.executionPromise.execution.addAction(action);
-                this.executionPromise.execution.label = 'Execute scene (' +
-                    this.executionPromise.execution.actions.length + ' devices) - Apple Home';
-            } else {
-                this.executionPromise = new Promise((resolve, reject) => {
-                    setTimeout(() => {
-                        this.client.execute(highPriority ? 'apply/highPriority' : 'apply', this.executionPromise.execution)
-                            .then(resolve)
-                            .catch(reject);
-                        this.executionPromise = null;
-                    }, 100);
-                });
-                this.executionPromise.execution = new Execution(label + ' - Apple Home', action);
-            }
-            return this.executionPromise;
+            return client.execute(highPriority ? 'apply/highPriority' : 'apply', new Execution(label + ' - Apple Home', action));
         }
+        // Commands within 100 ms (e.g. an Apple Home scene) go to each gateway as one execution
+        let pending = this.executionPromises.get(client);
+        if (pending) {
+            pending.execution.addAction(action);
+            pending.execution.label = 'Execute scene (' + pending.execution.actions.length + ' devices) - Apple Home';
+        } else {
+            pending = new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    const execution = this.executionPromises.get(client).execution;
+                    this.executionPromises.delete(client);
+                    client.execute(highPriority ? 'apply/highPriority' : 'apply', execution).then(resolve).catch(reject);
+                }, 100);
+            });
+            pending.execution = new Execution(label + ' - Apple Home', action);
+            this.executionPromises.set(client, pending);
+        }
+        return pending;
+    }
+
+    /** Client of the gateway that reports the device (the first gateway if unknown) */
+    public clientFor(deviceURL: string): Client {
+        return this.clientByURL.get(deviceURL) ?? this.client;
     }
 
     /**

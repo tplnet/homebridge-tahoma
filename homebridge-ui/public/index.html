@@ -26,8 +26,13 @@
         <label for="tahoma-config-select" class="form-label">Configuration</label>
         <select id="tahoma-config-select" class="form-select"></select>
       </div>
-      <p class="mb-1"><strong>Access:</strong> <span id="tahoma-service"></span></p>
-      <p class="mb-3"><strong id="tahoma-user-label">Gateway:</strong> <span id="tahoma-user"></span></p>
+      <p class="mb-2"><strong>Access:</strong> <span id="tahoma-service"></span></p>
+      <div class="table-responsive mb-2">
+        <table class="table table-sm mb-0">
+          <thead><tr><th id="tahoma-gateway-col">Gateway</th><th>Result</th></tr></thead>
+          <tbody id="tahoma-gateway-status"></tbody>
+        </table>
+      </div>
       <p id="tahoma-missing" class="small text-muted d-none"></p>
       <button id="tahoma-test" type="button" class="btn btn-primary">Test connection</button>
       <span id="tahoma-testing" class="text-muted small ms-2 d-none">
@@ -60,14 +65,15 @@
         <button id="tahoma-search" type="button" class="btn btn-sm btn-outline-primary">Search</button>
       </div>
       <p class="small text-muted">
-        Finds gateways with Developer Mode enabled (TaHoma app: tap the gateway PIN 7 times). Choose one to use the local
-        API – the IP address is recommended; reserve it in your router so that it does not change.
+        Finds gateways with Developer Mode enabled (TaHoma app: tap the gateway PIN 7 times). Use one as the gateway of
+        this configuration, or add it as a further gateway of the same installation (TaHoma 2.8: up to three). The IP
+        address is recommended – reserve it in your router so that it does not change.
       </p>
       <div id="tahoma-search-error" class="alert alert-warning small d-none" role="alert"></div>
       <div class="table-responsive">
         <table class="table table-sm mb-0">
           <thead><tr><th>Gateway PIN</th><th>IP address</th><th></th></tr></thead>
-          <tbody id="tahoma-gateway-rows"></tbody>
+          <tbody id="tahoma-found-rows"></tbody>
         </table>
       </div>
     </div>
@@ -75,13 +81,17 @@
 </div>
 
 <script type="module">
-  import { PLATFORM, DEFAULT_NAME, serviceOf, serviceLabel, configLabel, applyGateway, missingSettings, describeResult } from './setup.js';
+  import {
+    PLATFORM, DEFAULT_NAME, serviceOf, serviceLabel, configLabel, gatewaysOf, isUsed, applyGateway, addAdditionalGateway,
+    missingSettings, describeResult, describeInstallation,
+  } from './setup.js';
 
   const $ = (id) => document.getElementById(id);
   let pluginConfig = await homebridge.getPluginConfig();
   let selected = 0;
-  let gateways = [];
+  let found = [];
   let searched = false;
+  let lastCheck;
 
   if (pluginConfig.length === 0) {
     // not configured yet: start with the defaults, like the schema form does
@@ -105,9 +115,12 @@
     }
   }
 
-  function cell(text, sub) {
+  function cell(text, sub, className) {
     const td = document.createElement('td');
     td.textContent = text ?? '';
+    if (className) {
+      td.className = className;
+    }
     if (sub) {
       const span = document.createElement('span');
       span.className = 'sub';
@@ -117,13 +130,28 @@
     return td;
   }
 
+  function button(label, style, onClick, disabled = false) {
+    const element = document.createElement('button');
+    element.type = 'button';
+    element.className = 'btn btn-sm ms-1 mb-1 ' + style;
+    element.textContent = label;
+    element.disabled = disabled;
+    element.addEventListener('click', onClick);
+    return element;
+  }
+
+  function resetResult() {
+    lastCheck = undefined;
+    $('tahoma-result').classList.add('d-none');
+    $('tahoma-devices').classList.add('d-none');
+  }
+
   function render() {
     if (selected >= pluginConfig.length) {
       selected = 0;
     }
-    const select = $('tahoma-config-select');
     $('tahoma-config-select-row').classList.toggle('d-none', pluginConfig.length < 2);
-    select.replaceChildren(...pluginConfig.map((config, index) => {
+    $('tahoma-config-select').replaceChildren(...pluginConfig.map((config, index) => {
       const option = document.createElement('option');
       option.value = String(index);
       option.textContent = configLabel(config, index);
@@ -134,16 +162,31 @@
     const config = current();
     const local = serviceOf(config) === 'local';
     $('tahoma-service').textContent = serviceLabel(config);
-    $('tahoma-user-label').textContent = local ? 'Gateway:' : 'Somfy account:';
-    $('tahoma-user').textContent = config.user ?? config.gateway ?? '–';
+    $('tahoma-gateway-col').textContent = local ? 'Gateway' : 'Somfy account';
+
+    // gateways of the configuration with the result of the last test
+    $('tahoma-gateway-status').replaceChildren(...gatewaysOf(config).map((gateway, index) => {
+      const tr = document.createElement('tr');
+      const role = gateway.role === 'first' ? 'first gateway' : gateway.role === 'additional' ? 'additional gateway' : '';
+      tr.append(cell(gateway.address || '–', role));
+      const result = lastCheck?.gateways?.[index];
+      if (result) {
+        const text = describeResult(result);
+        tr.append(cell(text.text, undefined, 'small text-' + text.kind));
+      } else {
+        tr.append(cell(''));
+      }
+      return tr;
+    }));
     const missing = missingSettings(config);
     $('tahoma-missing').textContent = missing ?? '';
     $('tahoma-missing').classList.toggle('d-none', !missing);
     $('tahoma-test').disabled = Boolean(missing);
 
-    const rows = $('tahoma-gateway-rows');
+    // gateways found in the network
+    const rows = $('tahoma-found-rows');
     rows.replaceChildren();
-    if (gateways.length === 0) {
+    if (found.length === 0) {
       const tr = document.createElement('tr');
       const td = cell(searched ? 'No gateway found. Check that Developer Mode is enabled and that Homebridge is in the same network – or enter the IP address in the settings.' : '');
       td.colSpan = 3;
@@ -151,40 +194,42 @@
       tr.append(td);
       rows.append(tr);
     }
-    for (const gateway of gateways) {
+    for (const gateway of found) {
       const tr = document.createElement('tr');
-      const inUse = local && [gateway.ip, gateway.pin].includes(config.user ?? config.gateway);
-      tr.append(cell(gateway.pin), cell(gateway.ip, inUse ? 'used by this configuration' : undefined));
+      const used = isUsed(config, gateway);
+      tr.append(cell(gateway.pin), cell(gateway.ip, used ? 'used by this configuration' : undefined));
       const actions = document.createElement('td');
       actions.className = 'text-end';
-      for (const [use, label, style] of [['ip', 'Use IP address', 'btn-primary'], ['pin', 'Use PIN', 'btn-outline-secondary']]) {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'btn btn-sm ms-1 ' + style;
-        button.textContent = label;
-        button.addEventListener('click', () => useGateway(gateway, use));
-        actions.append(button);
-      }
+      actions.append(
+        button('Use as gateway', 'btn-primary', () => setFirst(gateway), used),
+        button('Add as further gateway', 'btn-outline-secondary', () => addFurther(gateway), used || !local),
+      );
       tr.append(actions);
       rows.append(tr);
     }
   }
 
-  async function useGateway(gateway, use) {
-    pluginConfig = pluginConfig.map((config, index) => index === selected ? applyGateway(config, gateway, use) : config);
+  async function updateCurrent(change, message) {
+    pluginConfig = pluginConfig.map((config, index) => index === selected ? change(config) : config);
     await homebridge.updatePluginConfig(pluginConfig);
-    homebridge.toast.success('Gateway ' + gateway.pin + ' set for "' + (current().name ?? DEFAULT_NAME) + '". Enter the token in the settings if needed, then save.');
+    resetResult();
+    homebridge.toast.success(message);
     render();
   }
+
+  const setFirst = (gateway) => updateCurrent((config) => applyGateway(config, gateway),
+    'Gateway ' + gateway.pin + ' set. Enter its token in the settings if needed, then save.');
+  const addFurther = (gateway) => updateCurrent((config) => addAdditionalGateway(config, gateway),
+    'Gateway ' + gateway.pin + ' added as a further gateway. Enter its token in the settings (Additional gateways), then save.');
 
   async function search() {
     $('tahoma-search').disabled = true;
     $('tahoma-searching').classList.remove('d-none');
     $('tahoma-search-error').classList.add('d-none');
     try {
-      gateways = await homebridge.request('/discover');
+      found = await homebridge.request('/discover');
     } catch (error) {
-      gateways = [];
+      found = [];
       $('tahoma-search-error').textContent = 'Search failed: ' + (error?.message ?? error);
       $('tahoma-search-error').classList.remove('d-none');
     }
@@ -195,29 +240,20 @@
   }
 
   async function test() {
+    resetResult();
     $('tahoma-test').disabled = true;
     $('tahoma-testing').classList.remove('d-none');
-    $('tahoma-result').classList.add('d-none');
-    $('tahoma-devices').classList.add('d-none');
-    let result;
     try {
-      result = await homebridge.request('/test', current());
+      lastCheck = await homebridge.request('/test', current());
     } catch (error) {
-      result = { ok: false, message: error?.message ?? String(error) };
+      lastCheck = { gateways: [{ ok: false, message: error?.message ?? String(error) }] };
     }
-    const text = describeResult(result);
+    const summary = describeInstallation(lastCheck);
     const box = $('tahoma-result');
-    box.className = 'alert mt-3 mb-0 alert-' + text.kind;
-    const title = document.createElement('strong');
-    title.textContent = text.title;
-    box.replaceChildren(title, ...text.lines.map((line) => {
-      const div = document.createElement('div');
-      div.className = 'small';
-      div.textContent = line;
-      return div;
-    }));
-    if (result?.devices?.length) {
-      $('tahoma-device-rows').replaceChildren(...result.devices.map((device) => {
+    box.className = 'alert mt-3 mb-0 alert-' + summary.kind;
+    box.textContent = summary.title;
+    if (lastCheck?.devices?.length) {
+      $('tahoma-device-rows').replaceChildren(...lastCheck.devices.map((device) => {
         const tr = document.createElement('tr');
         tr.append(cell(device.label), cell(device.uiClass, device.widget), cell(device.protocol));
         return tr;
@@ -225,7 +261,7 @@
       $('tahoma-devices').classList.remove('d-none');
     }
     $('tahoma-testing').classList.add('d-none');
-    $('tahoma-test').disabled = Boolean(missingSettings(current()));
+    render();
   }
 
   homebridge.addEventListener('configChanged', ({ data }) => {
@@ -234,8 +270,7 @@
   });
   $('tahoma-config-select').addEventListener('change', (event) => {
     selected = Number(event.target.value);
-    $('tahoma-result').classList.add('d-none');
-    $('tahoma-devices').classList.add('d-none');
+    resetResult();
     render();
   });
   $('tahoma-test').addEventListener('click', test);

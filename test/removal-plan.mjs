@@ -47,6 +47,13 @@ check('hidden and missing mixed: only the missing count for the safety stop', ()
     assert.deepEqual(ids(plan.missing), ['id5', 'id6']);
     assert.equal(plan.keepMissing, false);
 });
+check('a gateway did not answer: missing devices are kept, hidden ones still removed', () => {
+    const cached = acc(10);
+    const plan = planRemoval(cached, new Set(['id5', 'id6', 'id7', 'id8', 'id9']), new Set(['id0']), true);
+    assert.deepEqual(ids(plan.hidden), ['id0']);
+    assert.equal(plan.missing.length, 4);
+    assert.equal(plan.keepMissing, true);
+});
 check('nothing gone: nothing to do', () => {
     const cached = acc(3);
     const plan = planRemoval(cached, new Set(ids(cached)), new Set());

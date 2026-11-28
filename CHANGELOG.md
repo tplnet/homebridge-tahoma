@@ -1,3 +1,14 @@
+## 3.1.0-beta.2 (2026-11-28)
+
+### Added
+
+- **Several gateways in one configuration** (local API): since TaHoma 2.8 an installation can use up to three gateways. Add the further ones under *Additional gateways* (`additionalGateways`, each with `gateway` and `token`); all devices appear in the same bridge. Commands go to the gateway of each device, a device reported by several gateways appears once, and if one gateway does not answer its devices are kept (nothing is removed) while the others keep working. Existing configurations and accessories are unchanged
+- *Connection* tab: tests all gateways of the configuration and shows the result per gateway; a gateway found in the network can be used as the gateway or added as a further one
+
+### Fixed
+
+- Homebridge UI: the *Settings* tab was empty in beta.1. The plugin settings now manage one configuration (`singular`), like most plugins – the Homebridge UI shows the form next to a custom page only then. Two separate Somfy accounts: add the second configuration in the JSON editor (see the documentation)
+
 ## 3.1.0-beta.1 (2026-11-28)
 
 ### Added

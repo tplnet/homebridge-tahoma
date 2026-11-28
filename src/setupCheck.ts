@@ -18,6 +18,7 @@ export interface SetupConfig {
 }
 
 export interface DeviceSummary {
+    id: string;
     label: string;
     uiClass: string;
     widget: string;
@@ -50,6 +51,7 @@ export function summarizeDevices(data: unknown[]): DeviceSummary[] {
         .filter((device) => ![device.definition?.uiClass, device.definition?.widgetName, device.controllableName]
             .some((name) => DEFAULT_EXCLUDE.includes(name)))
         .map((device) => ({
+            id: device.uuid,
             label: device.label,
             uiClass: device.definition?.uiClass ?? '',
             widget: device.definition?.widgetName ?? '',
@@ -104,6 +106,52 @@ export async function testConnection(config: SetupConfig): Promise<CheckResult> 
     } finally {
         api?.close();
     }
+}
+
+export interface GatewayCheck extends CheckResult {
+    label: string;
+}
+
+export interface InstallationCheck {
+    gateways: GatewayCheck[];
+    devices?: DeviceSummary[];
+}
+
+/**
+ * Tests all gateways of a configuration: the first one (user/password) and, with the local API, the additional gateways.
+ * The devices of all gateways are combined like the plugin does it (a device reported by several gateways counts once).
+ */
+export async function testInstallation(config: SetupConfig & { additionalGateways?: { gateway?: string; token?: string }[] })
+    : Promise<InstallationCheck> {
+    const local = String(config.service ?? 'somfy_europe').toLowerCase() === 'local';
+    const first = local ? 'Gateway ' + (config.user ?? config.gateway ?? '') : 'Somfy cloud';
+    const entries: { label: string; config: SetupConfig }[] = [{ label: first, config }];
+    if (local) {
+        for (const entry of config.additionalGateways ?? []) {
+            const gateway = String(entry?.gateway ?? '').trim();
+            if (gateway !== '' && !entries.some((e) => e.label === 'Gateway ' + gateway)) {
+                const password = String(entry?.token ?? '').trim();
+                const tlsInsecure = config.tlsInsecure;
+                entries.push({ label: 'Gateway ' + gateway, config: { service: 'local', user: gateway, password, tlsInsecure } });
+            }
+        }
+    }
+    const gateways: GatewayCheck[] = [];
+    for (const entry of entries) {
+        gateways.push({ label: entry.label, ...await testConnection(entry.config) });
+    }
+    if (!local) {
+        return { gateways };
+    }
+    const devices = new Map<string, DeviceSummary>();
+    for (const gateway of gateways) {
+        for (const device of gateway.devices ?? []) {
+            if (!devices.has(device.id)) {
+                devices.set(device.id, device);
+            }
+        }
+    }
+    return { gateways, devices: [...devices.values()] };
 }
 
 /** Searches the local network for TaHoma gateways with Developer Mode */
